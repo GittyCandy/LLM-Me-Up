@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Research Agent | Standard & Quick Modes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.lordicon.com/lordicon-1.1.0.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/researcher.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <lord-icon
+                    src="https://cdn.lordicon.com/aichnomm.json"
+                    trigger="loop"
+                    delay="1000"
+                        stroke="bold"
+    state="hover-scary"
+                    colors="primary:#f54266,secondary:#f54266"
+                    style="width:50px;height:50px">
+                </lord-icon>
+                <h1>Advanced Research Agent</h1>
+            </div>
+            <div class="header-controls">
+                <div class="mode-toggle">
+                    <button class="mode-btn active" id="standardModeBtn" onclick="setMode('standard')">
+                        <lord-icon
+                            src="https://cdn.lordicon.com/qlpudrww.json"
+                            trigger="hover"
+                            colors="primary:#f54266"
+                            style="width:30px;height:30px">
+                        </lord-icon>
+                        Deep Search
+                    </button>
+                    <button class="mode-btn" id="quickModeBtn" onclick="setMode('quick')">
+                        <lord-icon
+                            src="https://cdn.lordicon.com/qpmdtzim.json"
+                            trigger="hover"
+                            colors="primary:#f54266"
+                            style="width:30px;height:30px">
+                        </lord-icon>
+                        GenZ Mode
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="research-container">
+            <div class="workflow-steps" id="workflowSteps">
+                <div class="step-line"></div>
+                <div class="active-line" id="activeLine"></div>
+
+                <div class="step" id="step1">
+                    <div class="step-number">1</div>
+                    <div>Initial Research</div>
+                </div>
+
+                <div class="step" id="step2">
+                    <div class="step-number">2</div>
+                    <div>Search Queries</div>
+                </div>
+
+                <div class="step" id="step3">
+                    <div class="step-number">3</div>
+                    <div>Web Research</div>
+                </div>
+
+                <div class="step" id="step4">
+                    <div class="step-number">4</div>
+                    <div>Analysis</div>
+                </div>
+
+                <div class="step" id="step5">
+                    <div class="step-number">5</div>
+                    <div>Final Report</div>
+                </div>
+            </div>
+
+            <div class="research-area">
+                <div class="research-input">
+                    <textarea id="researchPrompt" placeholder="Enter your research topic or question here..." rows="3"></textarea>
+                    <div class="research-controls">
+                        <button id="startResearch" onclick="startFullResearch()">
+                            <lord-icon
+                                src="https://cdn.lordicon.com/lrubprlz.json"
+                                trigger="hover"
+                                colors="primary:#ffffff"
+                                style="width:30px;height:30px">
+                            </lord-icon>
+                            Start Research
+                        </button>
+                        <button id="stopResearch" onclick="stopResearch()" disabled>
+                            <lord-icon
+                                src="https://cdn.lordicon.com/kfzfxczd.json"
+                                trigger="hover"
+                                colors="primary:#ffffff"
+                                style="width:30px;height:30px">
+                            </lord-icon>
+                            Stop
+                        </button>
+                        <button id="exportResearch" onclick="exportResearch()">
+                            <lord-icon
+                                src="https://cdn.lordicon.com/bimokqfw.json"
+                                trigger="hover"
+                                colors="primary:#ffffff"
+                                style="width:30px;height:30px">
+                            </lord-icon>
+                            Export
+                        </button>
+                        <button id="quickReadBtn" onclick="quickReadCurrent()">
+                            <lord-icon
+                                src="https://cdn.lordicon.com/vwwysvjs.json"
+                                trigger="hover"
+                                colors="primary:#ffffff"
+                                style="width:30px;height:30px">
+                            </lord-icon>
+                            QuickRead
+                        </button>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="researchProgress"></div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="loading-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <p id="loadingMessage">Initializing research process...</p>
+                </div>
+
+                <div class="output-container">
+                    <div class="output-area" id="outputArea">
+                        <div class="tab-container">
+                            <div class="tab active" onclick="switchTab('research')">
+                                <lord-icon
+                                    src="https://cdn.lordicon.com/iiixgoqp.json"
+                                    trigger="hover"
+                                    colors="primary:#f54266"
+                                    style="width:30px;height:30px">
+                                </lord-icon>
+                                Research
+                            </div>
+                            <div class="tab" onclick="switchTab('references')">
+                                <lord-icon
+                                    src="https://cdn.lordicon.com/abgykmtd.json"
+                                    trigger="hover"
+                                    colors="primary:#f54266"
+                                    style="width:30px;height:30px">
+                                </lord-icon>
+                                References
+                            </div>
+                            <div class="tab" onclick="switchTab('reflections')">
+                                <lord-icon
+                                    src="https://cdn.lordicon.com/valwmkhs.json"
+                                    trigger="hover"
+                                    colors="primary:#f54266"
+                                    style="width:30px;height:30px">
+                                </lord-icon>
+                                Reflections
+                            </div>
+                        </div>
+
+                        <div class="tab-content active" id="research-tab">
+                            <div class="output-content" id="researchOutput"></div>
+                        </div>
+
+                        <div class="tab-content" id="references-tab">
+                            <div class="output-content" id="referencesOutput"></div>
+                        </div>
+
+                        <div class="tab-content" id="reflections-tab">
+                            <div class="output-content" id="reflectionsOutput"></div>
+                        </div>
+                    </div>
+
+                    <div class="activity-log">
+                        <div class="log-header">
+                            <lord-icon
+                                src="https://cdn.lordicon.com/yraqammt.json"
+                                trigger="hover"
+                                colors="primary:#f54266"
+                                style="width:30px;height:30px">
+                            </lord-icon>
+                            <h3>Activity Log</h3>
+                            <span class="status-badge status-running" id="statusBadge">IDLE</span>
+                        </div>
+                        <div class="log-entries" id="activityLog"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.lordicon.com/lordicon-1.1.0.js"></script>
+    <script src="/js/researcher.js"></script>
+</body>
+</html>

@@ -1,5 +1,3 @@
-
-require('dotenv').config();
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const { spawn } = require('child_process');
@@ -26,12 +24,18 @@ if (!fs.existsSync(CONVERSATIONS_DIR)) {
 
 // Models data
 const MODELS = [
+  { value: 'deepseek-r1:8b', name: 'DeepSeek R1' },
   { value: 'dolphin-llama3:8b', name: 'Dolphin Llama3 8B' },
   { value: 'llama2', name: 'Llama2' }
 ];
 
 // Routes
+// Serve index.html from public folder as homepage
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/chatbot', (req, res) => {
   const conversations = fs.readdirSync(CONVERSATIONS_DIR)
     .filter(file => file.endsWith('.json'))
     .map(file => {
@@ -44,12 +48,14 @@ app.get('/', (req, res) => {
       };
     });
 
-  res.render('index', {
+  res.render('chatbot', {
     title: 'Advanced AI Chat',
     conversations,
     models: MODELS
   });
 });
+
+
 // Get conversation history
 app.get('/api/conversation/:id', (req, res) => {
   const filePath = path.join(CONVERSATIONS_DIR, `${req.params.id}.json`);
@@ -246,8 +252,110 @@ function generateChatTitle(firstMessage) {
     return shortMessage.length > 30 ? shortMessage.slice(0, 30) + '...' : shortMessage;
 }
 
+
+app.get('/researcherAgent', (req, res) => {
+    res.render('researcher');
+});
+
+app.post('/api/local-research', async (req, res) => {
+    const { prompt, mode } = req.body;
+
+    if (!prompt) {
+        return res.status(400).json({ error: 'Prompt parameter is required' });
+    }
+
+    try {
+        const pythonProcess = spawn('python', ['generate_agent.py', prompt, 'local-research', mode || 'standard']);
+
+        let responseData = '';
+        let errorData = '';
+
+        pythonProcess.stdout.on('data', (data) => {
+            responseData += data.toString();
+        });
+
+        pythonProcess.stderr.on('data', (data) => {
+            errorData += data.toString();
+        });
+
+        pythonProcess.on('close', (code) => {
+            if (code !== 0 || errorData) {
+                console.error(`Local research error: ${errorData}`);
+                return res.status(500).json({
+                    error: 'Local research process failed',
+                    details: errorData
+                });
+            }
+
+            try {
+                const result = JSON.parse(responseData);
+                res.json(result);
+            } catch (e) {
+                res.status(500).json({
+                    error: 'Failed to parse local research response',
+                    response: responseData
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Local research error:', error);
+        res.status(500).json({
+            error: 'Local research failed',
+            details: error.message
+        });
+    }
+});
+
+// Enhanced API endpoint
+app.post('/api/generate', (req, res) => {
+    const { prompt, agent_type, mode } = req.body;
+    const validAgentTypes = ['generate', 'search', 'web', 'analyze', 'reflect', 'report', 'quickread'];
+    const validModes = ['standard', 'quick'];
+
+    if (!validAgentTypes.includes(agent_type)) {
+        return res.status(400).json({ error: 'Invalid agent type' });
+    }
+
+    if (mode && !validModes.includes(mode)) {
+        return res.status(400).json({ error: 'Invalid mode' });
+    }
+
+    const pythonProcess = spawn('python', ['generate_agent.py', prompt, agent_type, mode || 'standard']);
+
+    let responseData = '';
+    let errorData = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+        responseData += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        errorData += data.toString();
+    });
+
+    pythonProcess.on('close', (code) => {
+        if (code !== 0 || errorData) {
+            console.error(`Agent error: ${errorData}`);
+            return res.status(500).json({
+                error: 'Agent process failed',
+                details: errorData
+            });
+        }
+
+        try {
+            const result = JSON.parse(responseData);
+            res.json(result);
+        } catch (e) {
+            res.status(500).json({
+                error: 'Failed to parse agent response',
+                response: responseData
+            });
+        }
+    });
+});
+
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3040;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickResearch - Gen Z Mode</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6e48aa;
+            --secondary-color: #9d50bb;
+            --accent-color: #4776e6;
+            --background-color: #f9f4ff;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --success-color: #00c853;
+            --warning-color: #ffab00;
+            --error-color: #ff5252;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            background: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .toggle-btn i {
+            margin-right: 5px;
+        }
+
+        .research-area {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 2px solid #e0e0e0;
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            resize: none;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.2);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: var(--box-shadow);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        button i {
+            font-size: 1.1em;
+        }
+
+        .output-container {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .output-title {
+            margin: 0;
+            font-size: 1.3rem;
+            color: var(--secondary-color);
+        }
+
+        .copy-btn {
+            background: #f0f0f0;
+            color: var(--text-color);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .output-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .output-content p {
+            margin: 0 0 10px 0;
+        }
+
+        .output-content ul {
+            padding-left: 20px;
+            margin: 0 0 10px 0;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--accent-color);
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-running {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .status-completed {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .status-error {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quick-action {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-action:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--box-shadow);
+            border-color: var(--accent-color);
+        }
+
+        .quick-action i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .meme-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed #e0e0e0;
+        }
+
+        .meme-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .meme-idea {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>QuickResearch <span style="font-weight: normal;">Gen Z Mode</span></h1>
+            <p class="subtitle">Get the facts fast - no long reads, just what matters</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="mode-toggle">
+            <button class="toggle-btn" onclick="window.location.href='/'">
+                <i class="fas fa-graduation-cap"></i> Researcher Mode
+            </button>
+            <button class="toggle-btn active">
+                <i class="fas fa-bolt"></i> Gen Z Mode
+            </button>
+        </div>
+
+        <div class="research-area">
+            <textarea id="researchPrompt" placeholder="What do you want to know? Keep it short..."></textarea>
+
+            <div class="quick-actions">
+                <div class="quick-action" onclick="setPrompt('Climate change facts')">
+                    <i class="fas fa-fire"></i>
+                    <div>Climate</div>
+                </div>
+                <div class="quick-action" onclick="setPrompt('Latest tech trends')">
+                    <i class="fas fa-microchip"></i>
+                    <div>Tech</div>
+                </div>
+                <div class="quick-action" onclick="setPrompt('Mental health tips')">
+                    <i class="fas fa-brain"></i>
+                    <div>Mental Health</div>
+                </div>
+                <div class="quick-action" onclick="setPrompt('Study hacks')">
+                    <i class="fas fa-book"></i>
+                    <div>Study</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button onclick="startQuickResearch()">
+                    <i class="fas fa-bolt"></i> Quick Answer
+                </button>
+                <button onclick="startDeepDive()">
+                    <i class="fas fa-search"></i> Deep Dive
+                </button>
+                <button onclick="generateMeme()">
+                    <i class="fas fa-laugh-squint"></i> Meme It
+                </button>
+                <button onclick="copyToClipboard()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="researchProgress"></div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div style="margin-top: 10px;">Getting the facts...</div>
+            </div>
+
+            <div class="output-container">
+                <div class="output-header">
+                    <h2 class="output-title">Your Answer <span class="status-badge status-running" id="statusBadge">READY</span></h2>
+                    <button class="copy-btn" onclick="copyToClipboard()">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="output-content" id="researchOutput">
+                    <p>Your research will appear here. Just type a question and hit "Quick Answer"!</p>
+                    <p>Try: "Why is TikTok so popular?" or "How does AI work?"</p>
+                </div>
+
+                <div class="meme-section" id="memeSection" style="display: none;">
+                    <div class="meme-title">
+                        <i class="fas fa-laugh-squint emoji"></i> Meme Idea
+                    </div>
+                    <div class="meme-idea" id="memeIdea"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentResearch = '';
+        let isResearchRunning = false;
+        let memeGenerated = false;
+
+        // Set example prompt
+        function setPrompt(prompt) {
+            document.getElementById('researchPrompt').value = prompt;
+        }
+
+        // Update status badge
+        function updateStatus(status) {
+            const badge = document.getElementById('statusBadge');
+            badge.textContent = status;
+
+            badge.classList.remove('status-running', 'status-completed', 'status-error');
+
+            if (status === 'RUNNING') {
+                badge.classList.add('status-running');
+            } else if (status === 'DONE') {
+                badge.classList.add('status-completed');
+            } else if (status === 'ERROR') {
+                badge.classList.add('status-error');
+            }
+        }
+
+        // Show loading spinner
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Start quick research
+        async function startQuickResearch() {
+            const prompt = document.getElementById('researchPrompt').value;
+            if (!prompt) {
+                alert("Yo, type something first! 🤨");
+                return;
+            }
+
+            startResearch(prompt, 'generate');
+        }
+
+        // Start deep dive
+        async function startDeepDive() {
+            const prompt = document.getElementById('researchPrompt').value;
+            if (!prompt) {
+                alert("Seriously? Type a question! 😅");
+                return;
+            }
+
+            showLoading(true);
+            updateStatus('RUNNING');
+
+            try {
+                // Step 1: Quick answer
+                document.getElementById('researchProgress').style.width = '20%';
+                const quickAnswer = await callResearchAgent(prompt, 'generate', 'genz');
+                currentResearch = quickAnswer;
+                updateOutput(quickAnswer);
+
+                // Step 2: Search queries
+                document.getElementById('researchProgress').style.width = '40%';
+                const searchQueries = await callResearchAgent(prompt, 'search', 'genz');
+
+                // Step 3: Web research (simulated)
+                document.getElementById('researchProgress').style.width = '60%';
+                const webResult = await callResearchAgent(searchQueries.split('\n')[0], 'web', 'genz');
+
+                // Step 4: Analysis
+                document.getElementById('researchProgress').style.width = '80%';
+                const analysis = await callResearchAgent(webResult, 'analyze', 'genz');
+
+                // Combine results
+                currentResearch = `${quickAnswer}\n\n${analysis}`;
+                updateOutput(currentResearch);
+
+                // Complete
+                document.getElementById('researchProgress').style.width = '100%';
+                updateStatus('DONE');
+            } catch (error) {
+                console.error('Research error:', error);
+                updateStatus('ERROR');
+                updateOutput(`Oops! Something went wrong: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Generate meme idea
+        async function generateMeme() {
+            const prompt = document.getElementById('researchPrompt').value ||
+                          document.getElementById('researchOutput').textContent;
+
+            if (!prompt) {
+                alert("Nothing to meme yet! Try some research first. 😆");
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const meme = await callResearchAgent(prompt, 'report', 'genz');
+                const memeIdea = meme.split('Meme Idea:')[1] || "Couldn't think of a meme... try again?";
+
+                document.getElementById('memeIdea').textContent = memeIdea.trim();
+                document.getElementById('memeSection').style.display = 'block';
+                memeGenerated = true;
+            } catch (error) {
+                console.error('Meme error:', error);
+                document.getElementById('memeIdea').textContent = "Meme machine broke 🤷‍♂️";
+                document.getElementById('memeSection').style.display = 'block';
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Start research with a specific agent
+        async function startResearch(prompt, agentType) {
+            showLoading(true);
+            updateStatus('RUNNING');
+
+            try {
+                const result = await callResearchAgent(prompt, agentType, 'genz');
+                currentResearch = result;
+                updateOutput(result);
+                updateStatus('DONE');
+            } catch (error) {
+                console.error('Research error:', error);
+                updateStatus('ERROR');
+                updateOutput(`Oops! Something went wrong: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Update output display
+        function updateOutput(content) {
+            // Simple formatting - in a real app you might want more sophisticated parsing
+            let formattedContent = content
+                .replace(/\n/g, '<br>')
+                .replace(/(🚀|🔍|🤔|🧠|📌|⏱️|🔥|💡|🤯|🧐|📌|😊|😂)/g, '<span class="emoji">$1</span>');
+
+            document.getElementById('researchOutput').innerHTML = formattedContent;
+
+            // Hide meme section if we're not showing a meme
+            if (!memeGenerated) {
+                document.getElementById('memeSection').style.display = 'none';
+            }
+
+            // Reset meme flag
+            memeGenerated = false;
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            if (!currentResearch) {
+                alert("Nothing to copy yet! Do some research first. 😉");
+                return;
+            }
+
+            navigator.clipboard.writeText(currentResearch)
+                .then(() => {
+                    const copyBtn = document.querySelector('.copy-btn');
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Copy failed:', err);
+                    alert("Oops! Couldn't copy. Try again?");
+                });
+        }
+
+        // Call the research agent API
+        async function callResearchAgent(prompt, agentType, mode = 'genz') {
+            return new Promise((resolve, reject) => {
+                fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        agent_type: agentType,
+                        mode: mode
+                    }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => resolve(data.response))
+                .catch(error => reject(error));
+            });
+        }
+    </script>
+</body>
+</html>

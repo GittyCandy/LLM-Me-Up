@@ -127,16 +127,28 @@ function startChatFromWelcome(message) {
 
 
     // Start a new conversation
-    function startNewConversation() {
-        if (currentConversationId && chatHistory.children.length > 0) {
-            if (!confirm('Are you sure you want to start a new conversation?')) return;
-        }
+// Start a new conversation
+function startNewConversation() {
+    currentConversationId = null;
+    chatHistory.innerHTML = '';
 
-        currentConversationId = null;
-        chatHistory.innerHTML = '';
-        welcomeSection.style.display = 'flex';
+    // Reset URL if it has a conversation parameter
+    if (window.location.search.includes('conversation')) {
+        window.history.pushState({}, '', window.location.pathname);
+    }
+
+    // Ensure welcome section is properly shown
+    welcomeSection.classList.remove('hide');
+    welcomeSection.style.display = 'flex';
+
+    // Focus the welcome input if it exists, otherwise the main input
+    const welcomeInput = document.getElementById('welcomeInput');
+    if (welcomeInput) {
+        welcomeInput.focus();
+    } else {
         messageInput.focus();
     }
+}
 
     // Handle quick prompt
 function handleQuickPrompt(e) {

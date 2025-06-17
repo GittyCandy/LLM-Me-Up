@@ -1,0 +1,716 @@
+Network & Security Basics
+Dr. Mouhannad ALATTAR
+CSCI368 Network Security
+Autumn 2024
+Outline
+Introduction tonetwork protocols
+TCP/IP &OSI
+Information Security Concepts and Terms
+Common network threats & attacks
+2
+Understanding Network Protocols
+Anetwork protocol isused forcommunication
+between entities indifferent systems
+Fortwoentities tocommunicate successfully, they 
+must "speak the same language."
+•What iscommunicated? Data andinformation
+•How itiscommunicated? Rules andstandards
+•When itiscommunicated? Timing andsynchronization
+Layered Approach toCommunication
+•Simplifying complex communication tasks bydividing
+them intolayers
+•Utilizing multiple protocols, each tailored foraspecific
+layer
+3
+Example
+Assume Maria andAnn areneighbors with alotofcommon
+ideas .However, Maria speaks only Spanish, and Ann
+speaks only English .Since both have learned thesign
+language intheir childhood, they enjoy meeting ina
+cafe acouple ofdays per week and exchange their
+ideas using signs .Communication isface toface and
+happens inonelayer.
+Source: Behrouz A.Forouzan, TCP/IP Protocol Suite4
+Example Contd..
+Now assume that Ann has tomove toanother town
+because ofherjob. Before she moves, thetwo meet for
+thelast time inthesame cafe. Although both are sad,
+Maria surprises Ann when she opens apacket that
+contains two small machines .The first machine can scan
+and transform aletter inEnglish toasecret code orvice
+versa .The other machine canscan andtranslate aletter in
+Spanish tothesame secret code orvice versa .Ann takes
+thefirst machine; Maria keeps thesecond one. The two
+friends canstillcommunicate using thesecret code.
+5
+Outline
+Introduction tonetwork protocols
+TCP/IP &OSI
+Essential Security Concepts and Terms
+Common network threats
+6
+OSI:Theseven layer model
+OSI
+•is an abbreviation of Open Systems Interconnection.
+•dates back to 1983 and was released by ISO .
+Layer Distinction
+•Upper Layers (Layers 5- 7): local and associated with 
+end-user applications
+•Lower Layers (Layers 1- 4): relate to network and 
+communication services
+https://en.wikipedia.org/wiki/OSI_model
+7
+OSIlayers
+8
+OSIlayers -Encapsulation and Decapsulation
+9
+TCP/IP Suite
+TCP/IP suite was developed prior totheOSI
+model.
+Layers inthe TCP/IP protocol suite donotmatch
+exactly withthose intheOSImodel.
+Theoriginal TCP/IP protocol suite wasdefined as
+fourlayers
+Modern TCP/IP model is thought ofasa five-
+layer model
+•Internet layer in original suite is divided into 2 
+layers: network layer and data link layer
+10
+OSIvsTCP/IP Model
+Application
+Presentation
+Session
+NetworkTransport
+Data Link
+PhysicalTransport
+Internet
+Network 
+InterfaceApplication
+Transport
+NetworkApplication
+Data Link
+PhysicalOSI Reference Model TCP / IP Model Original TCP / IP Model
+11
+Routing and Addressing in Computer Networks
+12
+Network Addressing
+Each device (e.g.,PC) onanetwork requires a
+unique address toensure proper identification
+andcommunication
+Each application requires aunique address within
+the device .Otherwise, multiple applications
+cannot runsimultaneously
+13
+Addressing in the TCP/IP Model
+Four levels ofaddresses are used in 
+anetwork employing theTCP/IP protocols:
+•physical address (MAC),
+•logical address (IP),
+•port address, and
+•application- specific address.
+Each address isrelated toaonelayer in
+theTCP/IP architecture
+14
+Addressing in the TCP/IP Model Cont.
+15
+IPv4Header
+Logical/IPAddress
+16
+IPv6Header
+17
+MAC Address Functionality in a Simple Network
+Anode withphysical address 10sends aframe toanode with
+physical address 87.
+8710 Data
+1
+packet
+accepted 8710 Data
+8710 Data 8710 Data
+8710 Data
+2
+3
+ 4
+Packet
+discardedPacket
+discarded
+18
+MAC & IP Address Functionality
+Data 2010AP
+Physical
+addresses
+changed
+Thecomputer withlogical address Aandphysical address 10needs tosend apacket tothe 
+computer withlogical address Pandphysical address 95.
+Data 9566APData 2010APDestionation Mac address
+Destionation IP addressSource IP addressSource MAC address
+19Data 2010APData 3399AP
+Data 9566APData 9566AP
+Physical
+addresseschanged
+MAC, IP & Port Address Functionality
+The sending computer isrunning three processes atthistime with port addresses a,b,and c.The 
+receiving computer isrunning twoprocesses atthistime withportaddresses jandk.
+A Sender Receiver P
+InternetAPajData MACAPajDataData ajData
+APajData MACAPajDataData ajDataDestionation Port NumberSource port number
+20
+21 21Network Classification by Scale:
+PAN (Personal Area Network):  Close vicinity (e.g., home, 
+individual workspace)
+LAN (Local Area Network): Covers a single building or campus (e.g., office, school)
+MAN (Metropolitan Area Network): Spans an entire city
+WAN (Wide Area Network): Covers a country or larger regions (e.g., multinational corporations)
+Internet: The global network connecting millions of private, public, academic, and governmental networks (network of all networks) 
+IPv4 Address Classes and Subnetting
+Class A
+•1.0.0.0 to 126.255.255.255
+•Subnet Mask: 255.0.0.0
+•Private range: 10.0.0.0 to 
+10.255.255.255
+Class B:
+•128.0.0.0 to 191.255.255.255
+•Subnet Mask: 255.255.0.0
+•Private range: 172.16.0.0 to 
+172.31.255.255Class C:
+•192.0.0.0 to 223.255.255.255
+•Subnet Mask: 255.255.255.0
+•Private range: 192.168.0.0 to 192.168.255.255
+Class D: 
+•224.0.0.0 to 239.255.255.255
+•Used for multicast
+Class E: 
+•240.0.0.0 to 255.255.255.255
+•Reserved for future use and research
+22
+Quiz Time: Test Your Knowledge!
+Q1: What is a network protocol, and 
+why is it important?
+A.A set of rules for communication between devices
+B.A device used to connect computers
+C.A type of network security measure
+D.A software application for sending emails
+Q2: Match the following terms with their correct OSI layer:
+A.Frame 1. Application Layer
+B.Datagram 2. Transport Layer
+C.Segment 3. Network Layer
+D.Message 4. Data Link LayerQ3: Which types of addresses are used to identify a device, the location in the network, and specific application or services on a device? (Select all that apply)
+A.MAC Address
+B.IP Address
+C.Port Address
+D.URL Address
+Q4: What is the primary purpose of a subnet mask?
+A.To identify the type of network protocol being used
+B.To determine the network and host portions of an IP address
+C.To encrypt data sent over a network
+D.To assign unique MAC addresses to devices
+23
+Outline
+Introduction tonetwork protocols
+TCP/IP &OSI
+Information Security Concepts and Terms
+Common network threats
+24
+Information System
+Asset :any element with avalue for the
+organization/enterprise.
+•Buildings, equipment, people (knowledge and experience),
+reputation, andInformation (Data)
+Information system :Itmanages andhandles the
+data (storage, transfer, exploitation/processing,
+etc.)Information System
+25
+26Network
+Host
+ApplicationInformation system: The Onion Model 
+DataInformation System: The OnionModel
+26
+Information Security 
+COBIT( Control Objectives for Information and Related
+Technology ):"The protection ofinformation against
+unauthorized disclosure, transfer ,modification ,or
+destruction ,whether accidental orintentional .“
+NIST SP800-53(National Institute ofStandards andTechnology ):
+"The protection of information and information
+systems from unauthorized access, use, disclosure ,
+disruption ,modification ,ordestruction inorder to
+provide confidentiality, integrity, and availability ."Information Security ( InfoSec )
+27
+28
+Data 
+(physical format)
+Data 
+(Numerical format)Before TodayData products information
+Information (knowledge) allows toobtain benefits
+(financial, social, political, …etc ).
+“Knowledge ispower “Francis Bacon, aFrench philosopher .Information Security -Why ?
+28
+Cybersecurity isasubcategory ofinformation security
+thataims toensure thesecurity ofdata thatisfound ina
+digital form. Itdeals primarily with theprotection of
+internet -connected systems, including hardware,
+software, anddata.
+Network Security :isasubset ofcybersecurity, focusing
+specifically on the protection ofthe networking
+infrastructure .Itinvolves protecting thedata asitis
+transmitted across orbetween networks.
+29Cyber Security & Network Security
+The CIA Triad
+Confidentiality, Integrity and 
+Availability are the fundamentals 
+principals of information 
+security: 
+•Primary goals of any security policy
+•Used to evaluate vulnerabilities and risks
+•Used to evaluate security controls
+The CIA Triade is a concise reference  to Confidentiality, 
+Integrity, and Availability  
+Confidentiality
+Integrity
+Information 
+Security
+Availability
+30
+Protection ofdata ortraffic from disclosure or
+unauthorized access .Itensures that only those
+withproper authorization canaccess data/traffic.
+Confidentiality canbeenforced using e.g.,:
+•Encryption: using cryptographic algorithms to convert sensitive 
+data into an unreadable format
+•Access Controls: allowing access to data or resources uniquely 
+after performing authentication  and authorization.
+31Violations ofconfidentiality arenot limited todirected intentional attacks .They can bethe
+result ofhuman error, oversight, orineptitude .Confidentiality
+Protection ofdata from unauthorized modifications,
+ensuring data remains accurate andcomplete throughout
+itslifecycle .
+Integrity canbeenforced using e.g.:
+•Hash Functions: generating unique hash values using 
+cryptographic algorithms.
+•Digital signature: Applying cryptographic signatures to hashed data.
+•Access Controls: Restricting access to data and systems to 
+authorized users only.
+32Violations ofintegrity arenotlimited todirected intentional attacks .They can betheresult of
+human error, oversight, orineptitude .Integrity
+33The accessibility ofresources (e.g.,network and
+services) toauthorized users when needed, ensuring
+these resources areoperational and functional, with
+minimal downtime anddisruptions .
+Availability canbeenforced using e.g.:
+•Redundancy and Failover Mechanisms: if one component fails, 
+another can take over seamlessly. 
+•DDoS Protection: Deploying DDoS (Distributed Denial of 
+Service) protection mechanisms.
+33Violations ofavailability arenotlimited todirected intentional attacks .They can betheresult
+ofhuman error, oversight, orineptitude .Availability
+Usage Control
+Anemerging concept thatcomplements thetraditional CIA
+triad.
+Itextends access control bynotonly defining who can
+access information butalso how that information canbe
+used after access hasbeen granted.
+Itfocuses oncontrolling theactions thatcanbeperformed
+ondata even after ithasbeen accessed ordistributed .
+34
+CIA Triad and Usage Control: Real- World Example
+A company collects personal information from users, such 
+as their email addresses, for the specific purpose of sending them a newsletter.
+•Confidentiality :ensures that only authorized
+personnel canaccess theemail addresses .
+•Integrity :ensures thattheemail addresses arestored
+and transmitted correctly, without unauthorized
+modification.
+•Availability :email addresses areaccessible tothe
+newsletter system whenever needed.
+•Usage Control: ensures thattheemail addresses are
+used only forsending newsletters and notforother
+purposes, likemarketing unrelated products orselling
+thedata tothird parties .
+35
+Even with strong measures toensure Confidentiality,
+Integrity, Availability, and Usage Control, potential risks
+canstillthreaten these protections .
+Origins of“Risk ”
+•The word "Risk" stems from theItalian word “risicare ,”which
+means navigating among dangerous rocks .
+•This implies making decisions incontexts ofuncertainty .
+Arisk can beidentified byanswering thefollowing
+questions :
+•What isthefeared event?
+•What istheprobability ofthishappening?
+•What arethepotential consequences/impacts?
+36Understanding Cybersecurity Risks
+Risk Concepts
+Asset :any data orresource (e.g.,network, server) that
+hasvalue fortheorganization.
+Threat: possible cause ofanundesired feared event that
+could harm anasset, without orwithintention.
+Threat agent :istheorigin ofthethreat
+Vulnerability :aweakness that can beexploited bya
+threat agent torealize athreat.
+Attack :asequence ofthreats realized byathreat agent
+withtheattention toobtain, damage, ordestroy assets
+Security Control :aprotective technical ororganizational
+measure/action designed toremove orreduce therisk
+level.Cybersecurity Risk: Terminology
+37
+IS
+Vulnerability
+Threat Agent
+Threat 1
+Threat 2
+Threat N
+Vulnerability
+VulnerabilityCybersecurity Risk: Terminology Cont.
+Attack = ( Threat 1 & Threat 2 & … & Threat 3)
+38
+Imagine a man standing behind a wall, and on the other 
+side of the wall, there's water that could potentially harm him. However, there's a small crack in the wall that could let the water through. To stop the water from coming in, the man puts his finger in the crack.Real world demonstration 
+39
+Cybers ecurity Threats
+Threat Sources:
+•External Threats (Outsider): Hackers, cybercriminals, state -
+sponsored actors
+•Internal Threats (Insider) :Disgruntled ordishonest employees,
+accidental breaches
+•Third- Party Threats :Vendors, contractors, orservice providers
+Threat Classifications:
+•Human- Caused Threats (>55%):Insider threats, Phishing attacks
+•Technological Threats :Malware, Denial -of-Service (DoS) attacks
+•Natural Threats :Environmental (e.g.,floods, fires), Power outages
+Ref:
+ IBM's Cost ofaData Breach Report
+ ENISA (European Union Agency forCybersecurity) publishes yearly threat landscape
+40
+Vulnerabilities
+A vulnerability is a weakness or flaw in a system, 
+network, or process that can be exploited by an attacker.
+Common Vulnerabilities:
+•Software Vulnerabilities :e.g.,Unpatched OS, poorly configured
+firewall, misconfigured permissions, unnecessary orimproperly
+secured open ports .
+•Hardware Vulnerabilities :e.g.,insecure network hardware or
+outdated firmware.
+•Human Vulnerabilities :e.g.,Social engineering, lack ofsecurity
+awareness among staff
+41
+Vulnerabilities and the CVE Format
+Common Vulnerabilities and Exposures (CVE): 
+Asystem thatprovides standardized identifiers forknown vulnerabilities in
+software andhardware .Each vulnerability gets aunique CVE IDforeasy
+tracking andreference .
+Format & Terms:
+•CVE-YYYY-NNNNN (e.g.,CVE-2024 -12345 ):YYYY refers totheyear
+when thevulnerability wasreported, andNNNNN isaunique identifier .
+•CVSS (Common Vulnerability Scoring System) :Asystem for
+measuring theseverity ofavulnerability, typically scored from 0to10.
+•Exploit :Refers toamethod ortool used totake advantage ofa
+vulnerability inasystem.
+•Patch :Asecurity update provided bythevendor tofixavulnerability .
+•Zero -Day:Avulnerability thatisexploited before thevendor isaware of
+itorbefore apatch isavailable.
+42
+CVE Databases
+NVD (National Vulnerability Database): Managed by NIST (National 
+Institute of Standards and Technology), NVD extends CVE with detailed vulnerability information and CVSS scores.
+•NVD’s may shift toward encouraging Common Vulnerability and
+Exposure (CVE) issuers (known asCNAs) toinclude CVSS scores
+directly, reducing the NVD's burden ofre-analyzing and scoring
+vulnerabilities .
+MITRE’s CVE List: The official registry for all CVEs, managed by MITRE.
+CIRCL (Computer Incident Response Center Luxembourg): Offers advanced search features and access to CVE information. 
+…
+43
+Risk Concepts
+Likelihood: isthefrequency orchance ofthethreat occurring .It
+depends on:
+•Motivation, opportunity andmeans ofthethreatening agent,
+•Robustness ofsecurity measures (e.g.,IDS, Firewalls)
+Impact :isthelevel ofseverity ofthepotential consequences onthe
+organization following therealization ofathreat .
+Impact must consider theasset value estimated bythebusiness
+owner
+Information security risk:Defined asthepossibility that athreat will
+exploit vulnerabilities inanasset orgroup ofassets, causing harm tothe
+organization (ISO/IEC 27005 ).
+Risk Level =  Likelihood  X  Impact 
+44Cybersecurity Risk: Terminology Cont.
+Impact Classification in Cybersecurity
+Impact refers to the potential consequences or severity of damage 
+caused by a threat exploiting a vulnerability in a system or network.
+Standards like ISO 27001 and NIST SP 800 -53 provides framework to 
+asses the impact severity level.
+Impact severity levels: 
+■Low: Limited damage toanorganization's operations, assets, orindividuals .
+Operational processes may continue without serious interruption.
+■Moderate/Medium :Significant butmanageable disruption orharm tothe
+organization. The attack may cause operational delays, butrecovery is
+achievable.
+■High: Severe damage affecting amajor partoftheorganization’s operations .
+Financial, reputational, andlegal damages canbesubstantial.
+■Critical :Catastrophic consequences that could potentially threaten the
+survival oftheorganization. Long-term operational disruption, major loss of
+public trust, orlegal penalties may occur.
+45
+46Security Attacks: Know Your Adversaries
+White Hat Hackers: Ethical hackers who help organizations improve 
+their security by identifying vulnerabilities.
+Black Hat Hackers: Malicious actors who exploit systems for personal 
+gain or to cause damage.
+Gray Hat Hackers: Individuals who operate between ethical and 
+malicious hacking; they might breach systems without permission but often 
+claim to help by identifying flaws.
+Red Hat Hackers: they target black hats using hacking methods to 
+disrupt or retaliate against malicious hacking attempts.
+Script Kiddies: Unskilled individuals using pre-made hacking tools or 
+scripts, with little understanding of the underlying techniques.
+Hacktivists: Hackers driven by political or ideological causes, using their 
+skills to promote their beliefs, often targeting governments or corporations.
+State -Sponsored Hackers: Hackers working for government entities to 
+conduct espionage, sabotage, or intelligence gathering, often against other nations. 
+46
+Security Attacks: Think Like A Hacker
+Security is probably more difficult than most 
+technological problems
+■Security is about ensuring that bad thing snever 
+happen, while other technologies efforts are concerned 
+with ensuring that something good happens.
+■The hardest thing is convincing yourself that you’ve thought of all possible scenarios, before your adversaries think of them.
+■You need to find and mitigate all exploitable vulnerabilities; your adversaries only need to find one ! 
+47
+Principle of easiest penetration
+An adversaire must be expected to use 
+any available means of penetration.
+The penetration mean may not be the most 
+obvious one, nor against the part of the system 
+where most solid defense has been installed
+“Agood attack isonethattheengineers never thought
+of.”
+Bruce Schneier
+48
+Security Attacks: MOM Approach
+Method
+•Skills, knowledge, tools, etc.required tolaunch theattack
+Opportunity
+•Thetime andaccess(e.g.,vulnerability) tolaunch theattack
+Motive
+•Areason toperform theattack
+49
+Risk Concepts
+Aprotective technical ororganizational measure/action
+designed toremove orreduce therisklevel.
+•Does noteliminate thethreat itself, butreduces thelikelihood ofit
+exploiting vulnerabilities and/or minimizes theimpact .
+•Must satisfy asecurity objective (e.g.,limiting access tosensitive
+information) .
+•The cost ofthe control should beless than the potential
+consequences oftherisk.
+Categories ofsecurity controls:
+•Organizational eg.,security policies .
+•Human ex.training anduser education.
+•Physical eg.,barriers, security guards, alarms .
+•Technological eg.,IDS, Firewall, Encryption .Cybersecurity Risk: Understanding Security Controls
+50
+Risk Concepts
+Preventive (e.g.,Firewalls, Security Guard) :tostop security incidents
+before they occur .
+Detective (e.g.,Alarms, Enforcing Staff Vacations) :Toidentify and
+detect security incidents thathave occurred orareoccurring .
+Corrective (e.g.,installation ofupdates/fix) :Tofixissues after a
+security incident hasoccurred .
+Deterrent (e.g.,Dogs, video surveillance) :Todiscourage potential
+attackers from attempting abreach .
+Recovery (e.g.,Disaster Recovery ,Backup) :Torestore systems and
+data toaprevious state after anincident .
+Compensating (e.g.,utilization Video surveillance instead ofDogs) :
+Toprovide analternative solution when theprimary control isnot
+feasible .Cybersecurity Risk: Types of Security Controls
+51
+Risk Concepts
+Adequate Protection:
+Assets must beprotected with security controls until
+they lose value.
+Used security controls should match theasset’s value.
+Principle ofeffectiveness :anysecurity control must be
+efficient, easy touse, andappropriate forthecontext .
+Principle ofweakest link:Security level can beno
+stronger than itsweakest link.Cybersecurity Risk: Principles of effective security controls
+52
+Outline
+Introduction tonetwork protocols
+TCP/IP &OSI
+Information Security Concepts and Terms
+Common network threats
+53
+Security Attacks : Four Fundamental Types 
+■Interruption
+■DoS (Denial ofService),
+Destruction of some
+hardware
+■Interception
+■Peeping eyes
+■Modification
+■Change ofexisting data
+■Fabrication
+■Addition of false or
+spurious data
+54
+Security Attacks : Passive vs. Active
+■Passive:
+■Focusing oninterception without altering ordisrupting thedata or
+services .
+■Hard todetect because they don't disrupt normal operations
+■Active: 
+■Involving modification, interruption, andfabrication .
+55
+Traffic Sniffing: A Network Interception Attack
+Traffic  (or packet) sniffing is a form of interception attack where an 
+attacker captures and analyzes network traffic between two devices.
+How it Happens:
+■Misconfigured network devices may allow traffic tobebroadcasted ormirrored
+tounauthorized devices .
+■Using unsecured network where attackers canposition themselves tointercept
+communications.
+Protection measures: 
+■Encryption
+■Network Segmentation
+■Monitoring
+■…
+56
+MITM: A Network Modification Attack
+A Man-in -the-Middle attack occurs when an attacker secretly 
+intercepts and modifies communication between two parties without 
+their knowledge. This allows the attacker to alter the transmitted data in real -time.
+Examples of MITM in Network Security:
+■HTTPS Spoofing :byimpersonating avalid SSL certificate .
+■Wi-FiEavesdropping :using insecure Wi-Finetwork controlled bytheattacker
+■DNS Spoofing :modification ofDNS responses
+Protection measures: 
+■Encryption
+■Mutual authentication
+57
+Reply Attack: A Network fabrication attack
+A Reply attack occurs when attacker intercepts valid data 
+transmissions (e.g., authentication tokens or transactions) and 
+resends them later to trick the system into granting unauthorized 
+access or executing unauthorized actions.
+Example: replaying the transaction request packets could result in double payments or unauthorized transactions.
+Protection measures: 
+■Timestamps &Nonces
+■Secure Session Tokens
+■MFA
+■Message Authentication Codes (MACs)
+58
+DOS: A Network interruption attack
+A DoS attack is an attempt to make a network service unavailable by 
+overwhelming the system with excessive requests, leading to system 
+slowdowns or complete shutdown.
+Distributed Denial of Service (DDoS): multiple compromised devices 
+(often forming a botnet) are used to flood the target system with traffic 
+from various locations, making it harder to stop.
+Example:
+■HTTP Flooding :Repeated requests toweb servers overwhelm thebandwidth
+orserver capacity .
+■SYN Flood Attack: Sending anoverwhelming number ofconnection requests to
+consume server resources .
+Protection measures: 
+■Firewalls,
+■DDoS Protection Services
+■Rate Limiting, Load Balancers, …
+59
+60It is time to work : Test Your Knowledge!
+Take some time to figure out how the following Denial of Service 
+(DoS) Attack Techniques work? Start from remembering how the 
+concerned network protocol nd its main request & reply packets
+■TCP SYN Flood
+■Smurf IPAttack
+■ICMP Flood
+■Ping ofDeath
+How can an attacker impersonate an SSL certificate to realize a 
+Man- in-the-Middle (MITM) attack?
+■What aretheconditions necessary tomake thisattack successful?
+■Consider theroleoftrust inCertificate Authorities (CAs), domain name
+spoofing, andSSL/TLS vulnerabilities .
+60
+Proactive Measures for Network Security
+No system is immune to attacks. However, there are 
+measures that must be taken:
+■Risk Assessment :regularly conduct risk assessments to
+identify and evaluate potential vulnerabilities within network
+infrastructure .
+■Continuous Monitoring :Implement continuous monitoring
+solutions todetect unusual activities orpotential threats in
+real-time.
+■Incident Response Planning :Develop and maintain an
+incident response plan that includes clear protocols for
+identifying, isolating, andmitigating attacks .
+■Security Training: Ensure that allteam members are
+trained onthe latest cybersecurity threats and best
+practices .Regular training sessions can help prevent
+attacks such asphishing.
+61
+Proactive Measures for Network Security Cont.
+■Update and Patch Management :Keep allsystems,
+applications, andnetwork devices updated with thelatest
+security patches andupdates .
+■Use Advanced Security Tools :Deploy advanced security
+solutions likefirewalls, intrusion detection &prevention
+systems (IDS/IPS)
+■Backup andDisaster Recovery :Maintain regular backups
+andhave arobust disaster recovery plan torestore data
+andservices quickly incase ofanattack .
+■Implement Strict Access Controls :Use least privilege and
+role-based access controls tominimize exposure to
+potential internal andexternal attacks .
+62
+What to Do If Attacked?
+No system is immune to attacks; even the most 
+sophisticated systems can be breached. Security experts 
+must accept that perfect security doesn’t exist.
+Key Actions to Minimize Harm:
+■Neutralize theThreat :Actively stop theattack inprogress, such
+asisolating compromised subnetworks
+■Close theVulnerability :Patch ormitigate thevulnerability that
+wasexploited toprevent recurrence .
+■RE-EVALUATE YOUR PROACTIVE MEASURES
+63
+Model for Network Security
+64
+Key Design Decisions in Network Security
+Where to focus security controls
+■Data: Protect sensitive data atrest, intransit, andinprocessing .
+■Operations :safeguarding business operations i.e.,how anorganization
+functions day-to-dayandinteracts withitstechnological infrastructure.
+■Users :protection against unauthorized access byimplementing e.g.,identity
+and access management (IAM), multi-factor authentication (MFA), and user
+behavior monitoring
+Where to place the security controls
+■They must span multiple layers —from hardware and applications totheOS
+anditskernel.
+65
+Key Design Decisions in Network Security Cont.
+Complexity or Assurance
+■Doweprefer simplicity and higher assurance toafeature -rich security
+environment?
+Centralize or decentralize control
+■Centralized :Easier toachieve uniformity across systems butcan lead to
+bottlenecks andsingle points offailure .
+■Decentralized :Distributes responsibility, making thesystem more resilient,
+though potentially harder tomaintain uniformity .
+66
+Summary
+Data communication and networks
+Protocols and standards
+Who are the attackers?
+Threats, Control, Vulnerabilities
+Methods, Opportunity, Motive
+Models for network security
+67
+Movie of the Day
+Warriors oftheNet
+http://www.youtube.com/watch?v=TBxZgOGjyZc
+Ashort andentertaining animated movie 
+introducing basic concepts ofTCP/IP networking
+68
+Questions?
+Labwillbefrom Next Week
+69
