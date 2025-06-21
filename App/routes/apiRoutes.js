@@ -7,6 +7,8 @@ const uploadController = require('../controllers/uploadController');
 // Chat routes
 router.get('/chatbot', chatController.renderChat);
 router.get('/researchbot', chatController.renderChat);
+router.get('/download', chatController.renderChat);
+
 router.post('/api/chat', chatController.handleChat);
 
 // Conversation routes

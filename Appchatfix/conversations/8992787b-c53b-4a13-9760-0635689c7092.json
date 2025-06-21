@@ -1,0 +1,25 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi",
+      "timestamp": "2025-06-19T12:11:25.994Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! How can I assist you today?\r\n",
+      "timestamp": "2025-06-19T12:12:38.519Z"
+    },
+    {
+      "role": "user",
+      "content": "nothinhg",
+      "timestamp": "2025-06-19T12:14:26.314Z"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"response\":\"I'm here to help! What is it that you need assistance with?\"}\r\n",
+      "timestamp": "2025-06-19T12:14:33.482Z"
+    }
+  ],
+  "name": "hi"
+}

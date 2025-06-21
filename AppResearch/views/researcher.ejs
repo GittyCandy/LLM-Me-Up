@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Research Agent | Standard & Quick Modes</title>
+    <title>Advanced Research Agent | Standard, Quick & Deep Modes</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.lordicon.com/lordicon-1.1.0.css" rel="stylesheet">
@@ -26,16 +26,36 @@
         --quick-accent: #b442f5;
         --quick-light: #c05df7;
         --quick-dark: #9335c8;
+        --deep-accent: #D4AF37;
+        --deep-light: #FFE066;
+        --deep-dark: #A67C00;
     }
 
     html {
         overflow-y: scroll;
-        scrollbar-width: none;
+        scrollbar-width: thin;
         -ms-overflow-style: none;
     }
 
     html::-webkit-scrollbar {
-        display: none;
+        width: 8px;
+    }
+
+    html::-webkit-scrollbar-track {
+        background: var(--light-color);
+    }
+
+    html::-webkit-scrollbar-thumb {
+        background-color: var(--primary-color);
+        border-radius: 4px;
+    }
+
+    .quick-mode::-webkit-scrollbar-thumb {
+        background-color: var(--quick-accent);
+    }
+
+    .deep-mode::-webkit-scrollbar-thumb {
+        background-color: var(--deep-accent);
     }
 
     * {
@@ -50,6 +70,7 @@
         color: var(--dark-color);
         line-height: 1.6;
         min-height: 100vh;
+        transition: all 0.3s ease;
     }
 
     .app-container {
@@ -86,7 +107,12 @@
 
     .quick-mode .tab-content::-webkit-scrollbar-thumb,
     .quick-mode .log-entries::-webkit-scrollbar-thumb {
-        background-color: rgba(123, 97, 255, 0.3);
+        background-color: rgba(180, 66, 245, 0.3);
+    }
+
+    .deep-mode .tab-content::-webkit-scrollbar-thumb,
+    .deep-mode .log-entries::-webkit-scrollbar-thumb {
+        background-color: rgba(212, 175, 55, 0.3);
     }
 
     .app-header {
@@ -109,6 +135,15 @@
         font-weight: 700;
         color: var(--primary-color);
         margin: 0;
+        transition: color 0.3s;
+    }
+
+    .quick-mode .app-header h1 {
+        color: var(--quick-accent);
+    }
+
+    .deep-mode .app-header h1 {
+        color: var(--deep-accent);
     }
 
     .header-controls {
@@ -120,14 +155,24 @@
     .mode-toggle {
         display: flex;
         background: rgba(245, 66, 102, 0.1);
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 4px;
+        transition: all 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .quick-mode .mode-toggle {
+        background: rgba(180, 66, 245, 0.1);
+    }
+
+    .deep-mode .mode-toggle {
+        background: rgba(212, 175, 55, 0.1);
     }
 
     .mode-btn {
         border: none;
         padding: 8px 16px;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
         font-weight: 500;
         transition: all 0.3s;
@@ -137,15 +182,51 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mode-btn::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 3px;
+        background: var(--primary-color);
+        transition: all 0.3s;
+        transform: translateX(-50%);
+    }
+
+    .quick-mode .mode-btn::after {
+        background: var(--quick-accent);
+    }
+
+    .deep-mode .mode-btn::after {
+        background: var(--deep-accent);
+    }
+
+    .mode-btn:hover {
+        transform: translateY(-2px);
     }
 
     .mode-btn.active {
-        background: var(--primary-color);
-        color: white;
+        background: rgba(245, 66, 102, 0.15);
+
+    }
+
+    .mode-btn.active::after {
+        width: 80%;
     }
 
     .mode-btn.quick.active {
-        background: var(--quick-accent);
+        background: rgba(180, 66, 245, 0.15);
+        color: var(--quick-accent);
+    }
+
+    .mode-btn.deep.active {
+        background: rgba(212, 175, 55, 0.15);
+        color: var(--deep-accent);
     }
 
     .research-container {
@@ -193,8 +274,13 @@
     }
 
     .quick-mode .step-number {
-        background-color: rgba(123, 97, 255, 0.1);
+        background-color: rgba(180, 66, 245, 0.1);
         color: var(--quick-accent);
+    }
+
+    .deep-mode .step-number {
+        background-color: rgba(212, 175, 55, 0.1);
+        color: var(--deep-accent);
     }
 
     .step.active .step-number {
@@ -205,6 +291,10 @@
 
     .quick-mode .step.active .step-number {
         background-color: var(--quick-accent);
+    }
+
+    .deep-mode .step.active .step-number {
+        background-color: var(--deep-accent);
     }
 
     .step.completed .step-number {
@@ -236,6 +326,10 @@
         background-color: var(--quick-accent);
     }
 
+    .deep-mode .active-line {
+        background-color: var(--deep-accent);
+    }
+
     .research-input {
         margin-bottom: 20px;
     }
@@ -260,6 +354,16 @@
         box-shadow: 0 0 0 2px rgba(245, 66, 102, 0.2);
     }
 
+    .quick-mode textarea:focus {
+        border-color: var(--quick-accent);
+        box-shadow: 0 0 0 2px rgba(180, 66, 245, 0.2);
+    }
+
+    .deep-mode textarea:focus {
+        border-color: var(--deep-accent);
+        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+    }
+
     .research-controls {
         display: flex;
         gap: 12px;
@@ -280,16 +384,21 @@
         justify-content: center;
         gap: 8px;
         font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .research-controls button:hover {
         background-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     .research-controls button:disabled {
         background-color: var(--gray-color);
         cursor: not-allowed;
         opacity: 0.7;
+        transform: none;
+        box-shadow: none;
     }
 
     .quick-mode .research-controls button {
@@ -297,7 +406,15 @@
     }
 
     .quick-mode .research-controls button:hover {
-        background-color: #6a4df0;
+        background-color: var(--quick-dark);
+    }
+
+    .deep-mode .research-controls button {
+        background-color: var(--deep-accent);
+    }
+
+    .deep-mode .research-controls button:hover {
+        background-color: var(--deep-dark);
     }
 
     .progress-container {
@@ -318,6 +435,10 @@
 
     .quick-mode .progress-bar {
         background-color: var(--quick-accent);
+    }
+
+    .deep-mode .progress-bar {
+        background-color: var(--deep-accent);
     }
 
     .loading {
@@ -345,6 +466,10 @@
 
     .quick-mode .dot {
         background-color: var(--quick-accent);
+    }
+
+    .deep-mode .dot {
+        background-color: var(--deep-accent);
     }
 
     .dot:nth-child(1) {
@@ -413,6 +538,11 @@
         color: var(--quick-accent);
     }
 
+    .deep-mode .tab.active {
+        border-bottom-color: var(--deep-accent);
+        color: var(--deep-accent);
+    }
+
     .tab-content {
         display: none;
         flex: 1;
@@ -438,6 +568,10 @@
 
     .quick-mode .output-content h3 {
         color: var(--quick-accent);
+    }
+
+    .deep-mode .output-content h3 {
+        color: var(--deep-accent);
     }
 
     .output-content p {
@@ -474,6 +608,10 @@
         border-left-color: var(--quick-accent);
     }
 
+    .deep-mode .output-content blockquote {
+        border-left-color: var(--deep-accent);
+    }
+
     .activity-log {
         background-color: var(--chat-bg);
         border-radius: 16px;
@@ -508,6 +646,10 @@
         color: var(--quick-accent);
     }
 
+    .deep-mode .log-header h3 {
+        color: var(--deep-accent);
+    }
+
     .status-badge {
         display: inline-block;
         padding: 3px 8px;
@@ -524,6 +666,10 @@
 
     .quick-mode .status-running {
         background-color: var(--quick-accent);
+    }
+
+    .deep-mode .status-running {
+        background-color: var(--deep-accent);
     }
 
     .status-completed {
@@ -578,6 +724,10 @@
         color: var(--quick-accent);
     }
 
+    .deep-mode .log-icon {
+        color: var(--deep-accent);
+    }
+
     .reference-item {
         background-color: rgba(245, 66, 102, 0.05);
         border-left: 3px solid var(--primary-color);
@@ -588,7 +738,12 @@
 
     .quick-mode .reference-item {
         border-left-color: var(--quick-accent);
-        background-color: rgba(123, 97, 255, 0.05);
+        background-color: rgba(180, 66, 245, 0.05);
+    }
+
+    .deep-mode .reference-item {
+        border-left-color: var(--deep-accent);
+        background-color: rgba(212, 175, 55, 0.05);
     }
 
     .reference-title {
@@ -606,16 +761,36 @@
         color: var(--quick-accent);
     }
 
+    .deep-mode .reference-url {
+        color: var(--deep-accent);
+    }
+
     .quick-point {
-        background: rgba(123, 97, 255, 0.05);
+        background: rgba(180, 66, 245, 0.05);
         border-left: 3px solid var(--quick-accent);
         padding: 12px;
         margin: 12px 0;
         border-radius: 0 8px 8px 0;
     }
 
+    .deep-point {
+        background: rgba(212, 175, 55, 0.05);
+        border-left: 3px solid var(--deep-accent);
+        padding: 12px;
+        margin: 12px 0;
+        border-radius: 0 8px 8px 0;
+    }
+
     .quick-tldr {
-        background: rgba(123, 97, 255, 0.08);
+        background: rgba(180, 66, 245, 0.08);
+        padding: 12px;
+        border-radius: 8px;
+        margin: 15px 0;
+        font-weight: 500;
+    }
+
+    .deep-summary {
+        background: rgba(212, 175, 55, 0.08);
         padding: 12px;
         border-radius: 8px;
         margin: 15px 0;
@@ -632,6 +807,10 @@
 
     .quick-mode .search-result {
         border-left-color: var(--quick-accent);
+    }
+
+    .deep-mode .search-result {
+        border-left-color: var(--deep-accent);
     }
 
     .search-result-title {
@@ -655,11 +834,15 @@
         color: var(--quick-accent);
     }
 
-    .websearch-toggle {
+    .deep-mode .search-result-url {
+        color: var(--deep-accent);
+    }
+
+    .search-controls {
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-left: 15px;
+        margin-bottom: 15px;
     }
 
     .toggle-label {
@@ -672,8 +855,8 @@
     .toggle-switch {
         position: relative;
         display: inline-block;
-        width: 50px;
-        height: 24px;
+        width: 40px;
+        height: 20px;
     }
 
     .toggle-switch input {
@@ -691,7 +874,7 @@
         bottom: 0;
         background-color: #ccc;
         transition: .4s;
-        border-radius: 24px;
+        border-radius: 20px;
     }
 
     .toggle-slider:before {
@@ -699,8 +882,8 @@
         content: "";
         height: 16px;
         width: 16px;
-        left: 4px;
-        bottom: 4px;
+        left: 2px;
+        bottom: 2px;
         background-color: white;
         transition: .4s;
         border-radius: 50%;
@@ -714,8 +897,12 @@
         background-color: var(--quick-accent);
     }
 
+    .deep-mode input:checked + .toggle-slider {
+        background-color: var(--deep-accent);
+    }
+
     input:checked + .toggle-slider:before {
-        transform: translateX(26px);
+        transform: translateX(20px);
     }
 
     input:checked ~ .toggle-label {
@@ -724,6 +911,10 @@
 
     .quick-mode input:checked ~ .toggle-label {
         color: var(--quick-accent);
+    }
+
+    .deep-mode input:checked ~ .toggle-label {
+        color: var(--deep-accent);
     }
 
     .search-disabled-note {
@@ -738,7 +929,11 @@
     }
 
     .quick-mode .search-disabled-note {
-        background-color: rgba(123, 97, 255, 0.1);
+        background-color: rgba(180, 66, 245, 0.1);
+    }
+
+    .deep-mode .search-disabled-note {
+        background-color: rgba(212, 175, 55, 0.1);
     }
 
     .search-disabled-note i {
@@ -747,6 +942,124 @@
 
     .quick-mode .search-disabled-note i {
         color: var(--quick-accent);
+    }
+
+    .deep-mode .search-disabled-note i {
+        color: var(--deep-accent);
+    }
+
+    .toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: rgba(245, 66, 102, 0.05);
+        transition: all 0.3s;
+    }
+
+    .quick-mode .toggle-container {
+        background: rgba(180, 66, 245, 0.05);
+    }
+
+    .deep-mode .toggle-container {
+        background: rgba(212, 175, 55, 0.05);
+    }
+
+    .toggle-container:hover {
+        background: rgba(245, 66, 102, 0.1);
+    }
+
+    .quick-mode .toggle-container:hover {
+        background: rgba(180, 66, 245, 0.1);
+    }
+
+    .deep-mode .toggle-container:hover {
+        background: rgba(212, 175, 55, 0.1);
+    }
+
+    .deep-search-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        padding: 8px 12px;
+        background: rgba(245, 66, 102, 0.05);
+        border-radius: 8px;
+    }
+
+    .quick-mode .deep-search-controls {
+        background: rgba(180, 66, 245, 0.05);
+    }
+
+    .deep-mode .deep-search-controls {
+        background: rgba(212, 175, 55, 0.05);
+    }
+
+    .deep-search-controls label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--gray-color);
+        white-space: nowrap;
+    }
+
+    .deep-search-controls input[type="range"] {
+        flex: 1;
+        -webkit-appearance: none;
+        height: 6px;
+        border-radius: 3px;
+        background: #ddd;
+        outline: none;
+    }
+
+    .deep-search-controls input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .quick-mode .deep-search-controls input[type="range"]::-webkit-slider-thumb {
+        background: var(--quick-accent);
+    }
+
+    .deep-mode .deep-search-controls input[type="range"]::-webkit-slider-thumb {
+        background: var(--deep-accent);
+    }
+
+    .deep-search-controls input[type="range"]::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+    }
+
+    .quick-mode .deep-search-controls input[type="range"]::-moz-range-thumb {
+        background: var(--quick-accent);
+    }
+
+    .deep-mode .deep-search-controls input[type="range"]::-moz-range-thumb {
+        background: var(--deep-accent);
+    }
+
+    .intensity-value {
+        font-weight: bold;
+        color: var(--primary-color);
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .quick-mode .intensity-value {
+        color: var(--quick-accent);
+    }
+
+    .deep-mode .intensity-value {
+        color: var(--deep-accent);
     }
 
     @media (max-width: 768px) {
@@ -798,10 +1111,8 @@
             justify-content: center;
         }
 
-        .websearch-toggle {
-            margin-left: 0;
-            width: 100%;
-            justify-content: flex-end;
+        .search-controls {
+            flex-wrap: wrap;
         }
     }
 
@@ -809,12 +1120,26 @@
         transition: all 0.3s;
     }
 
-    .mode-btn.active lord-icon {
-        filter: brightness(0) invert(1);
-    }
+
 
     .mode-btn:active {
         transform: translateY(0);
+    }
+
+    .tab lord-icon {
+        transition: all 0.3s;
+    }
+
+    .tab.active lord-icon {
+        filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(2000%) hue-rotate(330deg) brightness(90%) contrast(95%);
+    }
+
+    .quick-mode .tab.active lord-icon {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(90%) saturate(1000%) hue-rotate(240deg) brightness(90%) contrast(95%);
+    }
+
+    .deep-mode .tab.active lord-icon {
+        filter: brightness(0) saturate(100%) invert(72%) sepia(90%) saturate(500%) hue-rotate(5deg) brightness(90%) contrast(95%);
     }
     </style>
 </head>
@@ -832,7 +1157,7 @@
                     style="width:50px;height:50px">
                 </lord-icon>
                 <h1>Advanced Research Agent</h1>
-            </div>
+           </div>
             <div class="header-controls">
                 <div class="mode-toggle">
                     <button class="mode-btn active" id="standardModeBtn" onclick="setMode('standard')">
@@ -840,26 +1165,35 @@
                             src="https://cdn.lordicon.com/qlpudrww.json"
                             trigger="hover"
                             colors="primary:#f54266"
-                            style="width:30px;height:30px">
+                            style="width:24px;height:24px">
                         </lord-icon>
-                        Standard Search
+                        Standard
                     </button>
                     <button class="mode-btn" id="quickModeBtn" onclick="setMode('quick')">
                         <lord-icon
                             src="https://cdn.lordicon.com/qpmdtzim.json"
                             trigger="hover"
-                            colors="primary:#f54266"
-                            style="width:30px;height:30px">
+                            colors="primary:#b442f5"
+                            style="width:24px;height:24px">
                         </lord-icon>
                         GenZ Mode
                     </button>
+                    <button class="mode-btn" id="deepModeBtn" onclick="setMode('deep')">
+                        <lord-icon
+                            src="https://cdn.lordicon.com/lrzdmsmx.json"
+                            trigger="hover"
+                            colors="primary:#D4AF37"
+                            style="width:24px;height:24px">
+                        </lord-icon>
+                        Deep Search
+                    </button>
                 </div>
-                <div class="websearch-toggle">
+                <div class="toggle-container">
                     <label class="toggle-switch">
-                        <input type="checkbox" id="webSearchToggle" checked>
+                        <input type="checkbox" id="webSearchToggle">
                         <span class="toggle-slider"></span>
                     </label>
-                    <span class="toggle-label">Web Search</span>
+                    <span class="toggle-label">Web</span>
                 </div>
             </div>
         </header>
@@ -898,13 +1232,18 @@
             <div class="research-area">
                 <div class="research-input">
                     <textarea id="researchPrompt" placeholder="Enter your research topic or question here..." rows="3"></textarea>
+                    <div class="deep-search-controls" id="deepControls" style="display: none;">
+                        <label>Intensity:</label>
+                        <input type="range" id="intensitySlider" min="1" max="5" value="3">
+                        <span class="intensity-value" id="intensityValue">3</span>
+                    </div>
                     <div class="research-controls">
                         <button id="startResearch" onclick="startFullResearch()">
                             <lord-icon
                                 src="https://cdn.lordicon.com/lrubprlz.json"
                                 trigger="hover"
                                 colors="primary:#ffffff"
-                                style="width:30px;height:30px">
+                                style="width:24px;height:24px">
                             </lord-icon>
                             Start Research
                         </button>
@@ -913,7 +1252,7 @@
                                 src="https://cdn.lordicon.com/kfzfxczd.json"
                                 trigger="hover"
                                 colors="primary:#ffffff"
-                                style="width:30px;height:30px">
+                                style="width:24px;height:24px">
                             </lord-icon>
                             Stop
                         </button>
@@ -922,7 +1261,7 @@
                                 src="https://cdn.lordicon.com/bimokqfw.json"
                                 trigger="hover"
                                 colors="primary:#ffffff"
-                                style="width:30px;height:30px">
+                                style="width:24px;height:24px">
                             </lord-icon>
                             Export
                         </button>
@@ -931,7 +1270,7 @@
                                 src="https://cdn.lordicon.com/vwwysvjs.json"
                                 trigger="hover"
                                 colors="primary:#ffffff"
-                                style="width:30px;height:30px">
+                                style="width:24px;height:24px">
                             </lord-icon>
                             QuickRead
                         </button>
@@ -959,7 +1298,7 @@
                                     src="https://cdn.lordicon.com/iiixgoqp.json"
                                     trigger="hover"
                                     colors="primary:#f54266"
-                                    style="width:30px;height:30px">
+                                    style="width:24px;height:24px">
                                 </lord-icon>
                                 Research
                             </div>
@@ -968,7 +1307,7 @@
                                     src="https://cdn.lordicon.com/abgykmtd.json"
                                     trigger="hover"
                                     colors="primary:#f54266"
-                                    style="width:30px;height:30px">
+                                    style="width:24px;height:24px">
                                 </lord-icon>
                                 References
                             </div>
@@ -977,7 +1316,7 @@
                                     src="https://cdn.lordicon.com/valwmkhs.json"
                                     trigger="hover"
                                     colors="primary:#f54266"
-                                    style="width:30px;height:30px">
+                                    style="width:24px;height:24px">
                                 </lord-icon>
                                 Reflections
                             </div>
@@ -1002,7 +1341,7 @@
                                 src="https://cdn.lordicon.com/yraqammt.json"
                                 trigger="hover"
                                 colors="primary:#f54266"
-                                style="width:30px;height:30px">
+                                style="width:24px;height:24px">
                             </lord-icon>
                             <h3>Activity Log</h3>
                             <span class="status-badge status-running" id="statusBadge">IDLE</span>
@@ -1019,6 +1358,11 @@
         let currentStep = 0;
         let isResearchRunning = false;
         let currentMode = 'standard';
+        let researchAbortController = null;
+        let webSearchEnabled = false; // Default to off
+        let researchIntensity = 3; // Default intensity for deep search
+        let researcherRole = ''; // Default role for deep search
+
         let researchData = {
             initialResearch: '',
             searchQueries: [],
@@ -1032,23 +1376,41 @@
         // Initialize the UI
         updateWorkflowProgress();
         updateStatus('IDLE');
+        document.getElementById('webSearchToggle').checked = webSearchEnabled;
+        document.getElementById('intensitySlider').addEventListener('input', function() {
+            researchIntensity = parseInt(this.value);
+            document.getElementById('intensityValue').textContent = researchIntensity;
+        });
 
         function setMode(mode) {
             currentMode = mode;
             document.getElementById('standardModeBtn').classList.toggle('active', mode === 'standard');
             document.getElementById('quickModeBtn').classList.toggle('active', mode === 'quick');
-            document.body.classList.toggle('quick-mode', mode === 'quick');
+            document.getElementById('deepModeBtn').classList.toggle('active', mode === 'deep');
+
+            document.body.classList.remove('standard-mode', 'quick-mode', 'deep-mode');
+            document.body.classList.add(`${mode}-mode`);
+
+            // Update header icon colors based on mode
+            const headerIcon = document.querySelector('.header-content lord-icon');
+            if (mode === 'standard') {
+                headerIcon.setAttribute('colors', 'primary:#f54266,secondary:#f54266');
+            } else if (mode === 'quick') {
+                headerIcon.setAttribute('colors', 'primary:#f54266,secondary:#b442f5');
+            } else {
+                headerIcon.setAttribute('colors', 'primary:#f54266,secondary:#D4AF37');
+            }
+
+            // Show/hide deep search controls
+            document.getElementById('deepControls').style.display = mode === 'deep' ? 'flex' : 'none';
 
             const buttons = document.querySelectorAll('button:not(.mode-btn)');
             buttons.forEach(btn => {
-                if (mode === 'quick') {
-                    btn.classList.add('quick-mode');
-                } else {
-                    btn.classList.remove('quick-mode');
-                }
+                btn.classList.remove('standard-mode', 'quick-mode', 'deep-mode');
+                btn.classList.add(`${mode}-mode`);
             });
 
-            logActivity(`Switched to ${mode === 'quick' ? 'QuickRead' : 'Standard'} mode`);
+            logActivity(`Switched to ${mode === 'quick' ? 'GenZ' : mode === 'deep' ? 'Deep Search' : 'Standard'} mode`);
         }
 
         function updateWorkflowProgress() {
@@ -1136,6 +1498,15 @@
                         ${ref.summary ? `<div class="quick-tldr">${ref.summary}</div>` : ''}
                     </div>
                 `).join('');
+            } else if (currentMode === 'deep') {
+                return references.map(ref => `
+                    <div class="reference-item">
+                        <div class="reference-title">${ref.title || 'Untitled Source'}</div>
+                        <div class="reference-url">${ref.url || 'No URL available'}</div>
+                        ${ref.summary ? `<div class="deep-summary">${ref.summary}</div>` : ''}
+                        ${ref.credibility ? `<div class="deep-point">🔍 Credibility: ${ref.credibility}</div>` : ''}
+                    </div>
+                `).join('');
             } else {
                 return references.map(ref => `
                     <div class="reference-item">
@@ -1158,6 +1529,12 @@
                         <strong>💭 Reflection ${index + 1}:</strong> ${reflection}
                     </div>
                 `).join('');
+            } else if (currentMode === 'deep') {
+                return reflections.map((reflection, index) => `
+                    <div class="deep-point">
+                        <strong>🔍 Reflection ${index + 1}:</strong> ${reflection}
+                    </div>
+                `).join('');
             } else {
                 return reflections.map((reflection, index) => `
                     <div class="section">
@@ -1169,30 +1546,39 @@
         }
 
         function formatResearchContent(content) {
-    if (!content) return '<p>Research in progress...</p>';
+            if (!content) return '<p>Research in progress...</p>';
 
-    let html = '';
+            let html = '';
 
-    if (researchData.finalReportNote) {
-        html += `<div class="search-disabled-note">${researchData.finalReportNote}</div>`;
-    }
+            if (researchData.finalReportNote) {
+                html += `<div class="search-disabled-note">
+                    <i class="fas fa-info-circle"></i>
+                    ${researchData.finalReportNote}
+                </div>`;
+            }
 
-    if (currentMode === 'quick') {
-        html += `
-            <div class="quick-content">
-                ${content.replace(/\n/g, '<br>')}
-            </div>
-        `;
-    } else {
-        html += `
-            <div class="section">
-                ${content.replace(/\n/g, '<br>')}
-            </div>
-        `;
-    }
+            if (currentMode === 'quick') {
+                html += `
+                    <div class="quick-content">
+                        ${content.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+            } else if (currentMode === 'deep') {
+                html += `
+                    <div class="deep-content">
+                        ${content.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="section">
+                        ${content.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+            }
 
-    return html;
-}
+            return html;
+        }
 
         function updateOutputDisplay() {
             document.getElementById('researchOutput').innerHTML = formatResearchContent(
@@ -1220,7 +1606,24 @@
             logActivity('Generating QuickRead version of current content');
 
             try {
-                const quickVersion = await callResearchAgent(currentContent, 'quickread', 'quick');
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: currentContent,
+                        agent_type: 'quickread',
+                        mode: currentMode
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const quickVersion = data.response;
 
                 if (researchData.finalReport) {
                     researchData.finalReport = quickVersion;
@@ -1251,8 +1654,10 @@
                     },
                     body: JSON.stringify({
                         query: query,
-                        mode: currentMode
+                        mode: currentMode,
+                        intensity: currentMode === 'deep' ? researchIntensity : 3
                     }),
+                    signal: researchAbortController?.signal
                 });
 
                 if (!response.ok) {
@@ -1262,8 +1667,10 @@
                 const data = await response.json();
                 return data.results;
             } catch (error) {
-                console.error('Search error:', error);
-                logActivity(`Search failed for "${query}": ${error.message}`);
+                if (error.name !== 'AbortError') {
+                    console.error('Search error:', error);
+                    logActivity(`Search failed for "${query}": ${error.message}`);
+                }
                 return [];
             }
         }
@@ -1275,6 +1682,15 @@
                         <div class="search-result-title">🔍 ${result.title || 'No title'}</div>
                         <div class="search-result-snippet">${result.snippet || 'No description available'}</div>
                         <div class="search-result-url">🔗 ${result.link || 'No URL available'}</div>
+                    </div>
+                `).join('');
+            } else if (mode === 'deep') {
+                return results.slice(0, 5).map(result => `
+                    <div class="search-result">
+                        <div class="search-result-title">🔬 ${result.title || 'No title'}</div>
+                        <div class="search-result-snippet">${result.snippet || 'No description available'}</div>
+                        <div class="search-result-url">📎 ${result.link || 'No URL available'}</div>
+                        ${result.credibility ? `<div class="deep-point">🔍 Credibility: ${result.credibility}</div>` : ''}
                     </div>
                 `).join('');
             } else {
@@ -1299,24 +1715,40 @@
             }
 
             const resultsContent = results.map(r =>
-                `Title: ${r.title}\nURL: ${r.link}\nContent: ${r.snippet}`
+                `Title: ${r.title}\nURL: ${r.link}\nContent: ${r.snippet}${r.credibility ? `\nCredibility: ${r.credibility}` : ''}`
             ).join('\n\n');
 
             try {
-                const analysis = await callResearchAgent(
-                    `Search query: ${query}\n\nResults:\n${resultsContent}`,
-                    'web',
-                    currentMode
-                );
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: `Search query: ${query}\n\nResults:\n${resultsContent}`,
+                        agent_type: 'web',
+                        mode: currentMode,
+                        intensity: currentMode === 'deep' ? researchIntensity : 3
+                    }),
+                    signal: researchAbortController?.signal
+                });
 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
                 return {
                     title: results[0].title || `Results for: ${query}`,
-                    content: analysis,
-                    summary: analysis.split('\n').slice(0, 3).join('\n'),
-                    url: results[0].link
+                    content: data.response,
+                    summary: data.response.split('\n').slice(0, 3).join('\n'),
+                    url: results[0].link,
+                    credibility: results[0].credibility || 'Unknown'
                 };
             } catch (error) {
-                console.error('Result processing error:', error);
+                if (error.name !== 'AbortError') {
+                    console.error('Result processing error:', error);
+                }
                 return {
                     title: `Search: ${query}`,
                     content: `Error processing results for "${query}"`,
@@ -1331,6 +1763,9 @@
                 alert('Please enter a research topic first');
                 return;
             }
+
+            // Create new AbortController for this research session
+            researchAbortController = new AbortController();
 
             // Reset research data
             researchData = {
@@ -1348,19 +1783,44 @@
             document.getElementById('startResearch').disabled = true;
             document.getElementById('stopResearch').disabled = false;
             updateStatus('RUNNING');
-            logActivity(`Starting ${currentMode === 'quick' ? 'QuickRead' : 'standard'} research process...`);
+            logActivity(`Starting ${currentMode === 'quick' ? 'GenZ' : currentMode === 'deep' ? 'Deep Search' : 'Standard'} research process...`);
             logActivity(`Web search: ${webSearchEnabled ? 'ENABLED' : 'DISABLED'}`);
+            if (currentMode === 'deep') {
+                logActivity(`Research intensity: ${researchIntensity}/5`);
+            }
 
             try {
                 // Step 1: Initial Research
                 currentStep = 1;
                 updateWorkflowProgress();
-                showLoading(true, currentMode === 'quick' ? 'Generating quick overview...' : 'Generating initial research...');
-                logActivity(currentMode === 'quick' ? 'Creating quick overview' : 'Generating initial research content');
+                showLoading(true, currentMode === 'quick' ? 'Generating quick overview...' :
+                    currentMode === 'deep' ? 'Conducting in-depth preliminary research...' : 'Generating initial research...');
 
-                const initialResearch = await callResearchAgent(prompt, 'generate', currentMode);
-                researchData.initialResearch = initialResearch;
-                logActivity(currentMode === 'quick' ? 'Quick overview generated' : 'Initial research generated');
+                logActivity(currentMode === 'quick' ? 'Creating quick overview' :
+                    currentMode === 'deep' ? 'Starting deep preliminary research' : 'Generating initial research content');
+
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        agent_type: 'generate',
+                        mode: currentMode,
+                        intensity: currentMode === 'deep' ? researchIntensity : 3
+                    }),
+                    signal: researchAbortController.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error('Initial research failed');
+                }
+
+                const data = await response.json();
+                researchData.initialResearch = data.response;
+                logActivity(currentMode === 'quick' ? 'Quick overview generated' :
+                    currentMode === 'deep' ? 'Deep preliminary research completed' : 'Initial research generated');
                 updateOutputDisplay();
 
                 if (webSearchEnabled) {
@@ -1370,18 +1830,37 @@
                     showLoading(true, 'Generating search queries...');
                     logActivity('Creating search queries');
 
-                    const searchQueries = await callResearchAgent(prompt, 'search', currentMode);
-                    researchData.searchQueries = extractSearchQueries(searchQueries);
+                    const searchResponse = await fetch('/api/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            prompt: prompt,
+                            agent_type: 'search',
+                            mode: currentMode,
+                            intensity: currentMode === 'deep' ? researchIntensity : 3
+                        }),
+                        signal: researchAbortController.signal
+                    });
+
+                    if (!searchResponse.ok) {
+                        throw new Error('Search query generation failed');
+                    }
+
+                    const searchData = await searchResponse.json();
+                    researchData.searchQueries = extractSearchQueries(searchData.response);
                     logActivity(`Generated ${researchData.searchQueries.length} search queries`);
 
                     // Step 3: Web Research (using SerpAPI)
                     currentStep = 3;
                     updateWorkflowProgress();
-                    showLoading(true, currentMode === 'quick' ? 'Finding quick answers...' : 'Conducting web research...');
+                    showLoading(true, currentMode === 'quick' ? 'Finding quick answers...' :
+                        currentMode === 'deep' ? 'Conducting thorough web research...' : 'Conducting web research...');
                     logActivity('Starting web research phase');
 
                     // Process each search query
-                    for (let i = 0; i < Math.min(researchData.searchQueries.length, currentMode === 'quick' ? 3 : 5); i++) {
+                    for (let i = 0; i < Math.min(researchData.searchQueries.length, currentMode === 'quick' ? 1 : 2); i++) {
                         if (!isResearchRunning) break;
 
                         const query = researchData.searchQueries[i];
@@ -1397,7 +1876,8 @@
                         researchData.references.push({
                             title: processedResult.title,
                             url: processedResult.url || `https://www.google.com/search?q=${encodeURIComponent(query)}`,
-                            summary: processedResult.summary
+                            summary: processedResult.summary,
+                            credibility: processedResult.credibility
                         });
 
                         updateOutputDisplay();
@@ -1416,8 +1896,10 @@
                         },
                         body: JSON.stringify({
                             prompt: `${prompt}\n\nCurrent Research:\n${researchData.initialResearch}`,
-                            mode: currentMode
+                            mode: currentMode,
+                            intensity: currentMode === 'deep' ? researchIntensity : 3
                         }),
+                        signal: researchAbortController.signal
                     });
 
                     if (!localResearch.ok) {
@@ -1441,7 +1923,8 @@
                 // Step 4: Analysis
                 currentStep = 4;
                 updateWorkflowProgress();
-                showLoading(true, currentMode === 'quick' ? 'Analyzing key points...' : 'Analyzing findings...');
+                showLoading(true, currentMode === 'quick' ? 'Analyzing key points...' :
+                    currentMode === 'deep' ? 'Performing comprehensive analysis...' : 'Analyzing findings...');
                 logActivity('Analyzing research findings');
 
                 let analysisContent;
@@ -1451,31 +1934,86 @@
                     analysisContent = `${researchData.initialResearch}\n\n${researchData.localKnowledge || ''}`;
                 }
 
-                const analysis = await callResearchAgent(analysisContent, 'analyze', currentMode);
-                researchData.analysis = analysis;
+                const analysisResponse = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: analysisContent,
+                        agent_type: 'analyze',
+                        mode: currentMode,
+                        intensity: currentMode === 'deep' ? researchIntensity : 3
+                    }),
+                    signal: researchAbortController.signal
+                });
+
+                if (!analysisResponse.ok) {
+                    throw new Error('Analysis failed');
+                }
+
+                const analysisData = await analysisResponse.json();
+                researchData.analysis = analysisData.response;
 
                 // Generate reflections
-                const reflections = await callResearchAgent(analysis, 'reflect', currentMode);
-                researchData.reflections = extractReflections(reflections, currentMode);
+                const reflectionsResponse = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: researchData.analysis,
+                        agent_type: 'reflect',
+                        mode: currentMode,
+                        intensity: currentMode === 'deep' ? researchIntensity : 3
+                    }),
+                    signal: researchAbortController.signal
+                });
+
+                if (!reflectionsResponse.ok) {
+                    throw new Error('Reflections generation failed');
+                }
+
+                const reflectionsData = await reflectionsResponse.json();
+                researchData.reflections = extractReflections(reflectionsData.response, currentMode);
                 logActivity('Analysis and reflections completed');
                 updateOutputDisplay();
 
                 // Step 5: Final Report
                 currentStep = 5;
                 updateWorkflowProgress();
-                showLoading(true, currentMode === 'quick' ? 'Creating TL;DR report...' : 'Generating final report...');
+                showLoading(true, currentMode === 'quick' ? 'Creating TL;DR report...' :
+                    currentMode === 'deep' ? 'Compiling detailed final report...' : 'Generating final report...');
                 logActivity('Compiling final report');
 
                 let reportContent;
                 if (webSearchEnabled) {
-                    reportContent = `${researchData.initialResearch}\n\n## Research Findings\n\n${analysis}`;
+                    reportContent = `${researchData.initialResearch}\n\n## Research Findings\n\n${researchData.analysis}`;
                 } else {
-                    reportContent = `${researchData.initialResearch}\n\n## Local Knowledge Synthesis\n\n${analysis}`;
-                    researchData.finalReportNote = "Note: This report was generated without web searches to reduce API costs.";
+                    reportContent = `${researchData.initialResearch}\n\n## Local Knowledge Synthesis\n\n${researchData.analysis}`;
+                    researchData.finalReportNote = "Note: This report was generated without any web searches.";
                 }
 
-                const finalReport = await callResearchAgent(reportContent, 'report', currentMode);
-                researchData.finalReport = finalReport;
+                const reportResponse = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: reportContent,
+                        agent_type: 'report',
+                        mode: currentMode,
+                        intensity: currentMode === 'deep' ? researchIntensity : 3
+                    }),
+                    signal: researchAbortController.signal
+                });
+
+                if (!reportResponse.ok) {
+                    throw new Error('Final report generation failed');
+                }
+
+                const reportData = await reportResponse.json();
+                researchData.finalReport = reportData.response;
                 logActivity('Final report generated');
                 updateOutputDisplay();
 
@@ -1483,21 +2021,28 @@
                 updateStatus('COMPLETED');
                 logActivity('Research process completed successfully');
             } catch (error) {
-                console.error('Research error:', error);
-                updateStatus('ERROR');
-                logActivity(`Error: ${error.message}`);
+                if (error.name !== 'AbortError') {
+                    console.error('Research error:', error);
+                    updateStatus('ERROR');
+                    logActivity(`Error: ${error.message}`);
+                }
             } finally {
                 showLoading(false);
                 isResearchRunning = false;
                 document.getElementById('startResearch').disabled = false;
                 document.getElementById('stopResearch').disabled = true;
+                researchAbortController = null;
             }
         }
 
-
         function stopResearch() {
+            if (researchAbortController) {
+                researchAbortController.abort();
+            }
             isResearchRunning = false;
-            logActivity('User requested research stop');
+            logActivity('Research process stopped by user');
+            updateStatus('IDLE');
+            document.getElementById('stopResearch').disabled = true;
         }
 
         function exportResearch() {
@@ -1513,38 +2058,12 @@
             logActivity('Exported research report');
         }
 
-        async function callResearchAgent(prompt, agentType, mode = 'standard') {
-            try {
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        prompt: prompt,
-                        agent_type: agentType,
-                        mode: mode
-                    }),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                return data.response;
-            } catch (error) {
-                console.error('Agent error:', error);
-                throw error;
-            }
-        }
-
         function extractSearchQueries(text) {
             const queries = text.split('\n')
                 .map(line => line.replace(/^\d+\.\s*/, '').trim())
                 .filter(line => line.length > 0);
 
-            return queries.slice(0, currentMode === 'quick' ? 3 : 5);
+            return queries.slice(0, currentMode === 'quick' ? 1 : 2);
         }
 
         function extractReflections(text, mode) {
@@ -1552,6 +2071,10 @@
                 return text.split('\n')
                     .filter(line => line.trim().length > 0 && line.match(/[🤔🧐💭]/))
                     .map(line => line.trim());
+            } else if (mode === 'deep') {
+                return text.split('\n\n')
+                    .filter(para => para.trim().length > 0)
+                    .map(para => para.replace(/^\d+\.\s*/, '').trim());
             } else {
                 return text.split('\n\n')
                     .filter(para => para.trim().length > 0)
@@ -1559,22 +2082,20 @@
             }
         }
 
-    let webSearchEnabled = true;
+        document.getElementById('webSearchToggle').addEventListener('change', function() {
+            webSearchEnabled = this.checked;
+            logActivity(`Web search ${webSearchEnabled ? 'enabled' : 'disabled'}`);
 
-document.getElementById('webSearchToggle').addEventListener('change', function() {
-    webSearchEnabled = this.checked;
-    logActivity(`Web search ${webSearchEnabled ? 'enabled' : 'disabled'}`);
-
-    if (!webSearchEnabled) {
-        const note = document.createElement('div');
-        note.className = 'search-disabled-note';
-        note.innerHTML = `
-            <i class="fas fa-info-circle"></i>
-            Web search is disabled. Research will use existing knowledge only.
-        `;
-        document.getElementById('researchOutput').prepend(note);
-    }
-});
+            if (!webSearchEnabled) {
+                const note = document.createElement('div');
+                note.className = 'search-disabled-note';
+                note.innerHTML = `
+                    <i class="fas fa-info-circle"></i>
+                    Web search is disabled.
+                `;
+                document.getElementById('researchOutput').prepend(note);
+            }
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,15 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "heeeeloo",
+      "timestamp": "2025-06-14T12:10:04.562Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! I'm Dolphin, your helpful AI assistant. How can I assist you today?\r\n",
+      "timestamp": "2025-06-14T12:11:32.887Z"
+    }
+  ],
+  "name": "heeeeloo"
+}

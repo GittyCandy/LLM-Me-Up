@@ -2,219 +2,452 @@ import sys
 import requests
 import json
 from datetime import datetime
+import os
 
-def generate_response(prompt, agent_type="generate", mode="standard"):
+
+def generate_response(input_data):
+    prompt = input_data.get('prompt', '')
+    agent_type = input_data.get('agent_type', 'generate')
+    mode = input_data.get('mode', 'standard')
+    intensity = input_data.get('intensity', 3)
+    role = input_data.get('role', '')
     ollama_url = "http://localhost:11434/api/generate"
+
+    # Determine which model to use based on mode
+    model = "deepseek-r1:8b" if mode == "deep" else "dolphin-llama3:8b"
 
     agent_prompts = {
         "generate": {
-            "standard": f"""You are a Generation Agent. Your role is to create in-depth research content based on the user's prompt.
+            "standard": f"""You are a professional Research Generation Agent. Create a comprehensive research document based on the user's prompt.
 
             User Prompt: {prompt}
 
-            Generate comprehensive research material that includes:
-            - Detailed background information with historical context
-            - Key concepts and definitions with examples
-            - Current state of knowledge with recent developments
-            - Important theories or frameworks with applications
-            - Multiple perspectives on the topic
-            - Potential future directions
+            Structure:
+            1. [📌 Core Thesis] - 2 sentence central claim
+            2. [🔍 Key Evidence] - 3 bullet points (max 15 words each)
+            3. [🤔 Counterpoints] - 1-2 notable objections
+            4. [💡 Implications] - Why this matters now
+            5. [📚 Critical Analysis] - Strengths and weaknesses of current research - Conflicting perspectives"
 
-            Structure your response with clear headings and sections:
-            1. Introduction and Background
-            2. Core Concepts
-            3. Current State
-            4. Theoretical Frameworks
-            5. Critical Perspectives
-            6. Future Outlook""",
+            Guidelines:
+                - Maintain academic rigor but avoid jargon
+                - Balance conciseness with completeness
+                - Highlight practical applications""",
 
-            "quick": f"""You are a Generation Agent. Your role is to create concise research content for users with short attention spans.
-
-            User Prompt: {prompt}
-
-            Generate brief but informative research material that includes:
-            - 1-2 sentence background
-            - 3 key points max
-            - Simple definitions
-            - Only most relevant info
+            "quick": f"""[GenZ Mode Activated] Create a quick snackable research bite about: {prompt}
 
             Format:
-            🚀 [Main point in 5 words max]
-            • [Brief explanation in 1 line]
-            • [Another brief point if needed]"""
+            🔥 Hot Take: [1 emoji + 3-word headline]
+            🎯 3 Quick Facts:
+            • [5 words max]
+            • [5 words max]
+            • [5 words max]
+            📌 Why Care?: [1 Insta-story style sentence]
+            💡 Pro Tip: [1 actionable insight]
+            ⏱️ Read Time: <30 secs
+
+            Rules:
+            - No fluff, only hype
+            - Use emojis as bullet points
+            - If it wouldn't fit in a TikTok caption, rewrite it""",
+
+            "deep": f"""You are an Advanced Research Agent specializing in deep, comprehensive analysis. Conduct an in-depth research report on:
+
+            Topic: {prompt}
+            Research Intensity Level: {intensity}/5
+
+            Required Sections:
+            [📜 Historiography] - Detailed background context and Historical evolution with key milestones
+            [⚖️ Debate Map] - Key researchers and institutions
+            [🔬 Critical Evaluation] - Methodological strengths/weaknesses Critics
+            [🔬 Methodology Review] - How knowledge is produced in this field
+            [💎 Key Studies] - {intensity} seminal works with critique
+            [🌐 Real-World Impact] - Real-world applications with examples and Industry adoption and challenges
+            [🚧 Knowledge Frontiers] - {intensity} burning questions in the field
+
+            Rules:
+            - Depth and precision are prioritized over brevity"""
         },
 
         "search": {
-            "standard": f"""You are a Search Query Agent. Your role is to generate optimal search queries for research purposes.
+            "standard": f"""As a Search Query Specialist, Research Query Blueprint on: {prompt}
 
-            Research Topic: {prompt}
+            Generate 5 precise search strings:
+            1. [Broad conceptual search] site:.edu
+            2. [Specific term] + [application]
+            3. [Controversy/debate] + "review"
+            4. [Appropriate terminology]
+            5. [Recent developments] + after:2020
 
-            Generate 5 high-quality search queries that would help research this topic. Format each query on a separate line preceded by a number:
-            1. First search query
-            2. Second search query
-            etc.""",
+            Guidelines:
+            - Each query must stand alone
+            - Include domain/filetype operators where helpful
+            - Balance recall and precision""",
 
-            "quick": f"""Generate 3 short search queries about: {prompt}
+            "quick": f"""Generate 3 lightning-fast search queries about: {prompt}
 
             Format:
-            1. [3-5 word query]
-            2. [3-5 word query]
-            3. [3-5 word query]"""
+            1. [3-word concrete noun phrase]
+            2. [3-word question format]
+            3. [4-word "vs" comparison]
+
+            Rules:
+            - No complete sentences
+            - Use only keywords
+            - Prioritize recent sources (add "2020..2023" if relevant)""",
+
+            "deep": f"""🧪 Precision Search on: {prompt}
+
+            Create {intensity + 2} targeted queries:
+            1. [Meta-analysis] - "systematic review" OR "meta-analysis"
+            2. [Methodology] - "research design" OR "method* approach"
+            3. [Critiques] - "limitations" OR "criticism"
+            4. [Emerging] - "new findings" OR "breakthrough"
+
+            Requirements:
+            - Do not include thoughts or any commentary
+            - Each query must stand alone string"""
         },
 
-        # Add this to your agent_prompts dictionary in generate_agent.py
         "local-research": {
-            "standard": f"""You are a Knowledge Synthesis Agent. Your role is to provide comprehensive research using only your existing knowledge.
+            "standard": f"""You are a Knowledge Synthesis Agent. Provide comprehensive research using only your existing knowledge:
 
-        Research Topic: {prompt}
+            Topic: {prompt}
 
-        Provide a detailed research report that includes:
-        - Background and context
-        - Key concepts and theories
-        - Current understanding
-        - Limitations of this knowledge
-        - Potential areas for further research
+            Create a detailed report with:
+            1. Introduction
+                - Definition and scope
+                - Background context
+            2. Core Knowledge
+                - Key facts and information
+                - Important theories
+                - Relevant data points
+            3. Limitations
+                - Knowledge gaps
+                - Potential inaccuracies
+                - Areas needing verification
+            4. Recommendations
+                - Suggested external sources
+                - Key questions for further research
 
-        Structure your response with clear sections:
-        1. Introduction
-        2. Key Concepts
-        3. Current Understanding
-        4. Knowledge Gaps
-        5. Recommendations""",
+                Guidelines:
+                - Cite training cutoff when relevant
+                - Distinguish between:
+                  • Well-established facts
+                  • Probable interpretations
+                  • Speculative theories""",
 
-            "quick": f"""You are a Quick Knowledge Agent. Provide key facts about: {prompt}
+            "quick": f"""Instant Knowledge Drop: {prompt}
 
-        Format:
-        🧠 What I Know:
-        • [Fact 1]
-        • [Fact 2]
-        • [Fact 3]
+            Format:
+            ✅ Known Facts:
+            • [1] [5-word statement]
+            • [2] [5-word statement]
+            🚫 Unknowns:
+            - [1 key gap]
+            - [1 potential bias]
+            📱 Next Steps: 
+            [1] Search for [concrete term]
+            [2] Verify [specific claim]
 
-        ⚠️ Limitations:
-        • [What might be missing]
-        • [Suggestions for further research]"""
+            Rules:
+            - Present information as bullet points
+            - Never say "I think" or "in my knowledge"
+            - Flag uncertainties explicitly""",
+
+            "deep": f"""As a Knowledge Synthesis Expert, provide the most comprehensive analysis possible using only your existing knowledge:
+            Topic: {prompt}
+
+            Required Elements:
+            [📐 Foundational Concepts] - {intensity} bedrock principles
+            [⚡ Live Controversies] - {intensity} unresolved debates
+            [🕳️ Knowledge Gaps] - {intensity} critical unknowns
+            [🔮 Projected Developments] - Expected near-future advances
+
+            Methodology:
+            - Map relationships between concepts
+            - Identify {intensity} most vulnerable assumptions
+
+            Presentation:
+            Use MITRE ATT&CK-style matrix showing:
+            • Confidence levels
+            • Contradictory evidence
+
+            Conclude the research in an in-depth report format including:
+            1. Comprehensive Introduction
+            2. Core Knowledge Base
+            3. Critical Limitations
+            4. Research Recommendations"""
         },
 
         "web": {
-            "standard": f"""You are a Web Research Agent. Analyze the following web search results for the query:
+            "standard": f"""Source Synthesis: {prompt}
 
-            Query: {prompt}
+            Provide a professional analysis that:
+            1. Summarizes key findings
+            2. Identifies patterns/trends
+            3. Highlights most relevant information
 
-            Analyze these results and provide:
-            - Key information found
-            - Most relevant insights
-            - Reliability assessment
-            - Summary of findings
+            Structure your response while maintaining academic rigor.""",
 
-            Structure your response with clear sections:""",
-
-            "quick": f"""Analyze these web results for: {prompt}
+            "quick": f"""Web Snapshot:{prompt}
 
             Format:
-            🔍 [Main finding in 5 words]
-            • [1 sentence summary]
-            💡 [1 key fact or stat]"""
+            🏆 Most Relevant: [URL domain]
+            - [3-word summary]
+            💯 Confidence: [High/Med/Low]
+            🚩 Red Flags: [1 if any]
+            🔄 Alternate View: [Opposing source if exists]
+
+            Rules:
+            - Process in <10 seconds
+            - Extract concrete data only
+            - Skip narrative explanations""",
+
+            "deep": f"""Perform an analysis of these search results:
+
+            Original Query: {prompt.split('Results:')[0].strip()}
+            Research Intensity: {intensity}/5
+
+            Results:
+            {prompt.split('Results:')[1] if 'Results:' in prompt else prompt}
+
+            Provide a comprehensive analysis with:
+
+           Investigation Protocol:
+            1. Lineage Analysis:
+               - Citation trail
+               - Original data source
+               - Funding disclosures
+            2. Methodology Audit:
+               - Sample sizes
+               - Control groups
+               - Statistical significance
+            3. Network Mapping:
+               - Institutional connections
+               - Author collaborations
+               - Opposition research
+            4. Critical Commentary
+                - Strengths/weaknesses of findings
+                - {intensity} most significant insights
+                - Recommendations for further investigation
+
+            Output:
+            Graded evidence quality report (A-F) with:
+            • {intensity} key strengths
+            • {intensity} critical weaknesses."""
         },
 
         "analyze": {
-            "standard": f"""You are an Analysis Agent. Your role is to synthesize research findings into coherent analysis.
+            "standard": f"""Research Evaluation: {prompt}
 
-            Research Content: {prompt}
+            Provide a professional analysis that:
+            1. Identifies key themes
+            2. Evaluates evidence quality
+            3. Compares/contrasts findings
+            4. Assesses implications
+            5. Highlights knowledge gaps
 
-            Analyze this content and provide:
-            - Key findings and insights
-            - Patterns or trends identified
-            - Contradictions or gaps in knowledge
-            - Potential implications
-            - Relationships to other fields
+            Use clear section headings and maintain an objective, evidence-based tone.""",
 
-            Structure your analysis with clear sections:""",
-
-            "quick": f"""Analyze this quickly: {prompt}
+            "quick": f"""Instant Analysis: {prompt}
 
             Format:
-            🔎 [Main insight in 5 words]
-            • [1 line explanation]
-            📊 [1 relevant number if available]"""
+            🧠 Main Idea: [3 words]
+            📊 Best Evidence: [1 stat/fact]
+            🤔 Biggest Hole: [1 limitation]
+            🎯 Practical Use: [1 application]
+
+            Constraints:
+            - Each element ≤8 words
+            - No complete sentences
+            - Emoji as bullet points""",
+
+            "deep": f"""Critical Dissection: {prompt}
+
+            Forensic Examination:
+            1. Epistemic Foundations:
+               - Underlying assumptions
+               - Paradigm dependencies
+               - Measurement validity
+            2. Argument Structure:
+               - Logical coherence
+               - Inference strength
+               - Failure modes
+            3. Impact Assessment:
+               - Field disruption potential
+               - Adjacent domain effects
+               - Long-term consequences
+
+            Deliverable:
+            Triangulated critique with:
+            • {intensity} supporting arguments
+            • {intensity} undermining factors
+            • {intensity} alternative interpretations"""
         },
 
         "reflect": {
-            "standard": f"""You are a Reflection Agent. Your role is to provide critical reflections on research findings.
+            "standard": f"""📄 Executive Brief: {prompt}
 
-            Research Analysis: {prompt}
+            Structure:
+            ▸ Purpose: [1 sentence]
+            ▸ Findings: [3 bullet points]
+            ▸ Implications: [2 scenarios]
+            ▸ Actions: [1 recommended]
+            ▸ Risks: [1 contingency]""",
 
-            Provide 3-5 critical reflections that:
-            - Assess the quality of evidence
-            - Identify potential biases
-            - Suggest limitations
-            - Propose areas for further research
-            - Consider ethical implications
+            "quick": f"""One-Screen Report: {prompt}
 
-            Number each reflection separately:""",
+            Template:
+            [📌] HEADLINE (5 words)
+            [📊] KEY CHART: Describe as "Type showing X vs Y"
+            [❗] MAIN WARNING: 1 caveat
+            [✅] ACTION ITEM: 1 concrete step""",
 
-            "quick": f"""Give 2 quick reflections on: {prompt}
+            "deep": f"""in-depth reflections on: {prompt}
+            Reflection Depth: {intensity}/5
 
-            Format:
-            🤔 [Emoji] [1 sentence reflection]
-            🧐 [Emoji] [1 sentence reflection]"""
+            Generate {intensity} comprehensive reflections covering:
+            1. Methodological Critique
+            2. Bias Analysis
+            3. Evidence Assessment
+            4. Alternative Perspectives
+            5. Future Research
+
+            Each reflection should be substantial (3-5 sentences) with specific examples."""
         },
 
         "report": {
-            "standard": f"""You are a Report Agent. Your role is to compile research into a final report.
+            "standard": f"""Compile this research: {prompt}
 
-            Research Content: {prompt}
+            Create a comprehensive final report with:
+            1. Executive Summary
+            2. Introduction
+            3. Methodology
+            4. Findings
+            5. Analysis
+            6. Conclusions
+            7. Recommendations
+            8. References (if any)""",
 
-            Create a comprehensive final report that includes:
-            1. Introduction and background
-            2. Research methodology
-            3. Key findings
-            4. Analysis and interpretation
-            5. Conclusions
-            6. References
-
-            Use professional academic formatting:""",
-
-            "quick": f"""Create a quick summary of: {prompt}
+            "quick": f"""Create a quick report from: {prompt}
 
             Format:
             📝 TL;DR Report
-            • [3 bullet points max]
-            • [1 key takeaway]
-            • [1 emoji rating of confidence]"""
+            • [3 key bullet points]
+            • [1 main takeaway]
+            • [1 confidence rating: Low/Medium/High]""",
+
+            "deep": f"""Compile an exhaustive final report from: {prompt}
+            Report Depth: {intensity}/5
+
+            Structure the report with these sections:
+            1. Detailed Executive Summary (1-2 paragraphs)
+            2. Comprehensive Introduction
+                - Background and context
+                - Research objectives
+                - Significance of study
+            3. Methodology
+                - Research approach
+                - Data collection methods
+                - Analysis techniques
+            4. Findings
+                - Organized by theme/category
+                - Key results highlighted
+                - Supporting data presented
+            5. In-Depth Analysis
+                - Interpretation of findings
+                - Patterns and relationships
+                - Surprising/disconfirming evidence
+            6. Conclusions
+                - Summary of key insights
+                - Theoretical implications
+                - Practical consequences
+            7. Recommendations
+                - For practitioners
+                - For policymakers
+                - For future research
+            8. References (if any)
+                - Proper citations
+                - Additional resources"""
         },
 
-        "quickread": f"""You are a QuickRead Agent specialized for Gen Z and Alpha users. Convert this content for short attention spans:
+        "quickread": {
+            "standard": f"""Create a concise version of: {prompt}
 
-            Content: {prompt}
+            Provide a professional summary that:
+            - Captures key points
+            - Maintains accuracy
+            - Uses clear, concise language
+            - Preserves important details
+            - Is approximately 1/3 the length of original""",
 
-            Transform this into:
-            - Maximum 3 bullet points
-            - Each point under 10 words
-            - Use emojis to highlight key ideas
-            - Include 1 surprising fact if possible
-            - Add a "What this means for you" 1-liner
+            "quick": f"""Create a GenZ-friendly summary of: {prompt}
 
             Format:
             🎯 Key Points:
-            • [emoji] [point 1]
-            • [emoji] [point 2]
-            • [emoji] [point 3]
+            • [emoji] [point 1 in 5 words]
+            • [emoji] [point 2 in 5 words]
+            • [emoji] [point 3 in 10 words]
 
-            💡 What this means for you: [1 line]"""
+            💡 What Matters:
+            [1 line impact statement]
+
+            📌 Remember:
+            [1 surprising fact]""",
+
+            "deep": f"""Create a comprehensive yet concise summary of: {prompt}
+
+            The summary should:
+            - Preserve all critical information
+            - Maintain academic rigor
+            - Highlight key insights
+            - Note important caveats
+            - Be about 50% the length of original
+
+            Structure:
+            1. Core Findings
+                - Key results
+                - Significant data points
+            2. Critical Analysis
+                - Most important interpretations
+                - Notable patterns
+            3. Implications
+                - Theoretical consequences
+                - Practical applications
+            4. Limitations
+                - Key caveats
+                - Important context"""
+        }
     }
 
-    if agent_type == "quickread":
-        final_prompt = agent_prompts["quickread"]
+    if agent_type in agent_prompts:
+        if isinstance(agent_prompts[agent_type], dict):
+            final_prompt = agent_prompts[agent_type].get(mode, agent_prompts[agent_type]["standard"])
+        else:
+            final_prompt = agent_prompts[agent_type]
     else:
-        final_prompt = agent_prompts.get(agent_type, {}).get(mode, agent_prompts["generate"]["standard"])
+        final_prompt = agent_prompts["generate"]["standard"]
+
+    # Adjust parameters based on mode and agent type
+    temperature = 0.7 if mode == "quick" or agent_type in ["generate", "web"] else 0.3
+    top_p = 0.9 if mode == "standard" else 0.7
+
+    # Special adjustments for deep mode
+    if mode == "deep":
+        temperature = max(0.3, min(0.7, 0.3 + (intensity * 0.08)))  # Scale with intensity
+        top_p = 0.85
+        if agent_type in ["analyze", "reflect"]:
+            temperature = max(0.2, min(0.6, 0.2 + (intensity * 0.08)))
 
     payload = {
-        "model": "dolphin-llama3:8b",
+        "model": model,
         "prompt": final_prompt,
         "stream": False,
         "options": {
-            "temperature": 0.7 if agent_type in ["generate", "web"] or mode == "quick" else 0.3,
-            "top_p": 0.9 if mode == "standard" else 0.7
+            "temperature": temperature,
+            "top_p": top_p,
+            "num_ctx": 8192  # Increased context window for better research
         }
     }
 
@@ -227,6 +460,8 @@ def generate_response(prompt, agent_type="generate", mode="standard"):
             "metadata": {
                 "agent": agent_type,
                 "mode": mode,
+                "model": model,
+                "intensity": intensity if mode == "deep" else None,
                 "timestamp": datetime.now().isoformat(),
                 "prompt": prompt[:200] + "..." if len(prompt) > 200 else prompt
             }
@@ -243,13 +478,25 @@ def generate_response(prompt, agent_type="generate", mode="standard"):
         }
         return json.dumps(error_result)
 
+
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python generate_agent.py <prompt> <agent_type> [mode]")
+    if len(sys.argv) < 2:
+        print("Usage: python generate_agent.py <input_file>")
         sys.exit(1)
 
-    prompt = sys.argv[1]
-    agent_type = sys.argv[2]
-    mode = sys.argv[3] if len(sys.argv) > 3 else "standard"
-    result = generate_response(prompt, agent_type, mode)
-    print(result)
+    input_file = sys.argv[1]
+
+    try:
+        with open(input_file, 'r') as f:
+            input_data = json.load(f)
+
+        result = generate_response(input_data)
+        print(result)
+    except Exception as e:
+        error_result = {
+            "error": str(e),
+            "metadata": {
+                "timestamp": datetime.now().isoformat()
+            }
+        }
+        print(json.dumps(error_result))

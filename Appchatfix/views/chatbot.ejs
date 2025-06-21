@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced AI Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.lordicon.com/lordicon-1.1.0.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <link rel="stylesheet" href="/css/chatbot.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <lord-icon
+                    src="https://cdn.lordicon.com/aichnomm.json"
+                    trigger="loop"
+                    delay="1000"
+                    colors="primary:#f54266,secondary:#f54266"
+                    state="hover-lol"
+                    stroke="bold"
+                    style="width:50px;height:50px">
+                </lord-icon>
+                <h1>Advanced AI Chat</h1>
+            </div>
+            <div class="header-controls">
+                <button id="newChatBtn" class="icon-btn" title="New Chat">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/gzqofmcx.json"
+                        trigger="hover"
+                        colors="primary:#f54266"
+                        style="width:24px;height:24px">
+                    </lord-icon>
+                </button>
+                <button id="showHistoryBtn" class="icon-btn" title="Conversation History">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/dutqakce.json"
+                        trigger="hover"
+                        colors="primary:#f54266"
+                        style="width:24px;height:24px">
+                    </lord-icon>
+                </button>
+                <div class="model-selector">
+                    <label for="model">Model:</label>
+                    <select id="model">
+                        <% models.forEach(model => { %>
+                            <option value="<%= model.value %>"><%= model.name %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <button id="clearChatBtn" class="icon-btn" title="Clear Conversation">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/upjgggre.json"
+                        trigger="hover"
+                        colors="primary:#f54266"
+                        style="width:24px;height:24px">
+                    </lord-icon>
+                </button>
+                <button id="exportChatBtn" class="icon-btn" title="Export Conversation">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/bimokqfw.json"
+                        trigger="hover"
+                        colors="primary:#f54266"
+                        style="width:24px;height:24px">
+                    </lord-icon>
+                </button>
+                <button id="settingsBtn" class="icon-btn" title="Settings">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/asyunleq.json"
+                        trigger="hover"
+                        colors="primary:#f54266"
+                        style="width:24px;height:24px">
+                    </lord-icon>
+                </button>
+            </div>
+        </header>
+
+        <!-- Conversation History Panel -->
+        <div class="history-panel" id="historyPanel">
+            <div class="history-header">
+                <h3>Conversations</h3>
+                <button id="closeHistoryBtn" class="icon-btn">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/ebyacdql.json"
+                        trigger="hover"
+                        colors="primary:#f54266"
+                        style="width:20px;height:20px">
+                    </lord-icon>
+                </button>
+            </div>
+            <div class="history-list" id="historyList">
+                <% conversations.forEach(conversation => { %>
+                    <div class="history-item" data-id="<%= conversation.id %>">
+                        <lord-icon
+                            src="https://cdn.lordicon.com/rrfthkgx.json"
+                            trigger="hover"
+                            colors="primary:#f54266"
+                            style="width:20px;height:20px">
+                        </lord-icon>
+                        <span class="history-item-title"><%= conversation.name %></span>
+                        <span class="history-item-time"><%= new Date(conversation.updatedAt).toLocaleString() %></span>
+                        <button class="delete-history-btn" data-id="<%= conversation.id %>">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-header">
+                <h3>Settings</h3>
+                <button id="closeSettingsBtn" class="icon-btn">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/ebyacdql.json"
+                        trigger="hover"
+                        colors="primary:#f54266"
+                        style="width:20px;height:20px">
+                    </lord-icon>
+                </button>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h4>Model Settings</h4>
+                    <div class="form-group">
+                        <label for="temperature">Temperature (creativity)</label>
+                        <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7">
+                        <span id="temperatureValue">0.7</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxTokens">Max Response Length</label>
+                        <input type="range" id="maxTokens" min="100" max="4000" step="100" value="2000">
+                        <span id="maxTokensValue">2000 tokens</span>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h4>Appearance</h4>
+                    <div class="form-group">
+                        <label for="themeSelect">Theme</label>
+                        <select id="themeSelect">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="system">System Default</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="welcome-section" id="welcomeSection">
+                <lord-icon
+                    src="https://cdn.lordicon.com/bpptgtfr.json"
+                    trigger="in"
+                    delay="1500"
+                    state="in-chat"
+                    colors="primary:#f54266"
+                    style="width:250px;height:250px">
+                </lord-icon>
+                <h2>Welcome to Advanced AI Chat</h2>
+                <p>Upload documents or start chatting with your private AI assistant</p>
+                <div class="welcome-prompt">
+                    <div class="prompt-input-container">
+                        <input type="text"
+                               id="welcomeInput"
+                               placeholder="Start a conversation or upload a document to get started..."
+                               autocomplete="off"
+                               spellcheck="false" />
+                        <div class="prompt-underline"></div>
+                    </div>
+                </div>
+                <div class="quick-prompts">
+                    <button class="quick-prompt" data-prompt="Explain quantum computing in simple terms">Quantum Computing</button>
+                    <button class="quick-prompt" data-prompt="Summarize this document for me">Document Summary</button>
+                    <button class="quick-prompt" data-prompt="Write a Python script to analyze CSV data">Python CSV Analysis</button>
+                </div>
+            </div>
+            <div class="chat-history" id="chatHistory">
+                <!-- Messages will appear here -->
+            </div>
+
+            <div class="input-area">
+                <div class="input-controls">
+                    <div class="file-upload">
+                        <input type="file" id="documentUpload" accept=".pdf,.txt,.docx,.pptx,.xlsx,.csv,.md">
+                        <button id="uploadBtn">
+                            <lord-icon
+                                src="https://cdn.lordicon.com/ukdwhewu.json"
+                                trigger="hover"
+                                colors="primary:#ffffff"
+                                style="width:20px;height:20px">
+                            </lord-icon>
+                            Upload Document
+                        </button>
+                        <span id="fileName"></span>
+                    </div>
+                    <div class="token-info">
+                        <small class="model-info" id="modelInfo">Current model: dolphin-llama3:8b</small>
+                        <small class="token-counter" id="tokenCounter">0 tokens</small>
+                    </div>
+                </div>
+                <div class="file-preview" id="filePreview"></div>
+                <div class="message-input">
+                    <textarea id="messageInput" placeholder="Type your message here..." rows="3"></textarea>
+                    <button id="sendBtn">
+                        <lord-icon
+                            src="https://cdn.lordicon.com/wjogzler.json"
+                            trigger="hover"
+                            colors="primary:#ffffff"
+                            style="width:20px;height:20px">
+                        </lord-icon>
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Preview Modal -->
+    <div class="modal" id="documentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="documentModalTitle">Document Preview</h3>
+                <button class="icon-btn" id="closeDocumentModal">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/ebyacdql.json"
+                        trigger="hover"
+                        colors="primary:#f54266"
+                        style="width:20px;height:20px">
+                    </lord-icon>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="documentModalContent" class="document-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="useDocumentBtn" class="btn-primary">Use This Document</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.lordicon.com/lordicon-1.1.0.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.12/marked.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/chatbot.js"></script>
+</body>
+</html>

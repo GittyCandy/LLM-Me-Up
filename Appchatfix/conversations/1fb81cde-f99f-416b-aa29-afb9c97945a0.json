@@ -1,0 +1,15 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "how r u",
+      "timestamp": "2025-06-14T11:54:11.194Z"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"response\":\"I'm doing great! How about you?\",\"model\":\"deepseek-rl:2a\",\"conversationHistory\":[{\"role\":\"assistant\",\"content\":\"I'm doing great! How about you?\"}]}\r\n",
+      "timestamp": "2025-06-14T11:58:22.393Z"
+    }
+  ],
+  "name": "how r u"
+}

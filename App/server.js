@@ -4,33 +4,51 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const axios = require('axios');
+const tmp = require('tmp');
+const http = require('http');
+const socketIo = require('socket.io');
 const app = express();
+const mime = require('mime-types');
+const { v4: uuidv4 } = require('uuid');
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(fileUpload());
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
+  useTempFiles: true,
+  tempFileDir: '/tmp/'
+}));
 app.use(express.static('public'));
 
 // Set view engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+const server = http.createServer(app);
+const io = socketIo(server);
+
 // Conversation storage
 const CONVERSATIONS_DIR = path.join(__dirname, 'conversations');
-if (!fs.existsSync(CONVERSATIONS_DIR)) {
-  fs.mkdirSync(CONVERSATIONS_DIR);
-}
+const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
+const DOCUMENTS_DIR = path.join(__dirname, 'documents');
+
+// Create directories if they don't exist
+[CONVERSATIONS_DIR, UPLOADS_DIR, DOCUMENTS_DIR].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
 
 // Models data
 const MODELS = [
   { value: 'deepseek-r1:8b', name: 'DeepSeek R1' },
-  { value: 'dolphin-llama3:8b', name: 'Dolphin Llama3 8B' },
+  { value: 'dolphin-llama3:8b', name: 'Dolphin (Uncensored)' },
   { value: 'llama2', name: 'Llama2' }
 ];
 
 // Routes
-// Serve index.html from public folder as homepage
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -44,9 +62,11 @@ app.get('/chatbot', (req, res) => {
       const conversation = JSON.parse(data);
       return {
         id: file.replace('.json', ''),
-        name: conversation.name || `Chat ${file.replace('.json', '').slice(0, 8)}`
+        name: conversation.name || `Chat ${file.replace('.json', '').slice(0, 8)}`,
+        updatedAt: conversation.updatedAt || fs.statSync(filePath).mtime.toISOString()
       };
-    });
+    })
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
   res.render('chatbot', {
     title: 'Advanced AI Chat',
@@ -55,8 +75,6 @@ app.get('/chatbot', (req, res) => {
   });
 });
 
-
-// Get conversation history
 app.get('/api/conversation/:id', (req, res) => {
   const filePath = path.join(CONVERSATIONS_DIR, `${req.params.id}.json`);
   if (fs.existsSync(filePath)) {
@@ -67,7 +85,6 @@ app.get('/api/conversation/:id', (req, res) => {
   }
 });
 
-// Delete conversation
 app.delete('/api/conversation/:id', (req, res) => {
   const filePath = path.join(CONVERSATIONS_DIR, `${req.params.id}.json`);
   if (fs.existsSync(filePath)) {
@@ -77,6 +94,7 @@ app.delete('/api/conversation/:id', (req, res) => {
     res.status(404).json({ error: 'Conversation not found' });
   }
 });
+
 app.post('/api/conversation/rename', (req, res) => {
   const { conversationId, newName } = req.body;
   const filePath = path.join(CONVERSATIONS_DIR, `${conversationId}.json`);
@@ -88,6 +106,7 @@ app.post('/api/conversation/rename', (req, res) => {
   try {
     const conversation = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     conversation.name = newName;
+    conversation.updatedAt = new Date().toISOString();
     fs.writeFileSync(filePath, JSON.stringify(conversation, null, 2));
     res.json({ success: true });
   } catch (error) {
@@ -98,24 +117,27 @@ app.post('/api/conversation/rename', (req, res) => {
 
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, model, conversationId } = req.body;
+    const { message, model, conversationId, documentId } = req.body;
 
     let conversation = {
       messages: [],
-      name: generateChatTitle(message)
+      name: generateChatTitle(message),
+      updatedAt: new Date().toISOString()
     };
-    let convId = conversationId || crypto.randomUUID();
+    let convId = conversationId || uuidv4();
     const filePath = path.join(CONVERSATIONS_DIR, `${convId}.json`);
 
     if (conversationId && fs.existsSync(filePath)) {
       conversation = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      conversation.updatedAt = new Date().toISOString();
     }
 
     // Add user message to conversation
     conversation.messages.push({
       role: 'user',
       content: message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      ...(documentId && { documentId })
     });
 
     // Save conversation with user message
@@ -124,10 +146,25 @@ app.post('/api/chat', async (req, res) => {
     // Get conversation history for context
     const conversationHistory = conversation.messages.map(msg => ({
       role: msg.role,
-      content: msg.content
+      content: msg.content,
+      ...(msg.documentId && { documentId: msg.documentId })
     }));
 
-    const aiResponse = await processAIRequest(message, model, conversationHistory);
+    // If document is referenced, include its content
+    let documentContent = '';
+    if (documentId) {
+      const docPath = path.join(DOCUMENTS_DIR, `${documentId}.txt`);
+      if (fs.existsSync(docPath)) {
+        documentContent = fs.readFileSync(docPath, 'utf8');
+      }
+    }
+
+    const aiResponse = await processAIRequest({
+      prompt: message,
+      model,
+      conversationHistory,
+      documentContent
+    });
 
     // Add AI response to conversation
     conversation.messages.push({
@@ -149,65 +186,90 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-app.post('/api/upload', (req, res) => {
+app.post('/api/upload', async (req, res) => {
   if (!req.files || !req.files.document) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
   const document = req.files.document;
-  const uploadPath = path.join(__dirname, 'public', 'uploads', document.name);
+  const fileExt = path.extname(document.name).toLowerCase();
+  const allowedTypes = ['.pdf', '.txt', '.docx', '.pptx', '.xlsx', '.csv', '.md'];
 
-  // Create uploads directory if it doesn't exist
-  if (!fs.existsSync(path.dirname(uploadPath))) {
-    fs.mkdirSync(path.dirname(uploadPath), { recursive: true });
+  if (!allowedTypes.includes(fileExt)) {
+    return res.status(400).json({ error: 'Unsupported file type' });
   }
 
-  document.mv(uploadPath, (err) => {
-    if (err) {
-      console.error('File upload error:', err);
-      return res.status(500).json({ error: 'File upload failed' });
-    }
+  try {
+    // Generate a unique ID for the document
+    const docId = uuidv4();
+    const uploadPath = path.join(DOCUMENTS_DIR, `${docId}${fileExt}`);
+    const textPath = path.join(DOCUMENTS_DIR, `${docId}.txt`);
 
-    // Process the document (PDF, TXT, etc.)
-    processDocument(uploadPath, (err, content) => {
-      if (err) {
-        console.error('Document processing error:', err);
-        return res.status(500).json({ error: 'Document processing failed' });
-      }
-      res.json({
-        content: content.toString(),
-        filename: document.name
-      });
+    // Move the file to documents directory
+    await document.mv(uploadPath);
+
+    // Process the document to extract text
+    const content = await processDocument(uploadPath);
+
+    // Save extracted text
+    fs.writeFileSync(textPath, content);
+
+    res.json({
+      documentId: docId,
+      filename: document.name,
+      size: document.size,
+      type: mime.lookup(fileExt) || 'application/octet-stream',
+      content: content.length > 500 ? content.substring(0, 500) + '...' : content
     });
-  });
+  } catch (error) {
+    console.error('File upload error:', error);
+    res.status(500).json({ error: 'File processing failed' });
+  }
+});
+
+app.get('/api/document/:id', (req, res) => {
+  const docPath = path.join(DOCUMENTS_DIR, `${req.params.id}.txt`);
+  if (fs.existsSync(docPath)) {
+    const content = fs.readFileSync(docPath, 'utf8');
+    res.json({
+      content: content.length > 1000 ? content.substring(0, 1000) + '...' : content
+    });
+  } else {
+    res.status(404).json({ error: 'Document not found' });
+  }
 });
 
 // AI Processing Functions
-async function processAIRequest(prompt, model = 'dolphin-llama3:8b', conversationHistory = []) {
+async function processAIRequest({ prompt, model = 'dolphin-llama3:8b', conversationHistory = [], documentContent = '' }) {
   return new Promise((resolve, reject) => {
+    const data = {
+      prompt,
+      model,
+      conversationHistory,
+      documentContent
+    };
+
     const pythonProcess = spawn('python', [
-      '-u',  // Unbuffered output
+      '-u',
       path.join(__dirname, 'aiProcessor.py'),
-      JSON.stringify({  // Send as JSON
-        prompt,
-        model,
-        conversationHistory
-      })
+      JSON.stringify(data)
     ]);
 
     let response = '';
+    let error = '';
 
     pythonProcess.stdout.on('data', (data) => {
       response += data.toString();
     });
 
     pythonProcess.stderr.on('data', (data) => {
-      console.error(`AI processing error: ${data}`);
+      error += data.toString();
     });
 
     pythonProcess.on('close', (code) => {
-      if (code !== 0) {
-        reject(new Error(`AI process exited with code ${code}`));
+      if (code !== 0 || error) {
+        console.error(`AI processing error: ${error}`);
+        reject(new Error(`AI process failed: ${error}`));
       } else {
         resolve(response);
       }
@@ -215,41 +277,33 @@ async function processAIRequest(prompt, model = 'dolphin-llama3:8b', conversatio
   });
 }
 
-function processDocument(filePath, callback) {
-  const pythonProcess = spawn('python', [
-    '-u',
-    path.join(__dirname, 'documentProcessor.py'),
-    filePath
-  ]);
+async function processDocument(filePath) {
+  return new Promise((resolve, reject) => {
+    const pythonProcess = spawn('python', [
+      '-u',
+      path.join(__dirname, 'documentProcessor.py'),
+      filePath
+    ]);
 
-  let content = '';
+    let content = '';
+    let error = '';
 
-  pythonProcess.stdout.on('data', (data) => {
-    content += data.toString();
+    pythonProcess.stdout.on('data', (data) => {
+      content += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      error += data.toString();
+    });
+
+    pythonProcess.on('close', (code) => {
+      if (code !== 0 || error) {
+        reject(new Error(`Document processing failed: ${error}`));
+      } else {
+        resolve(content);
+      }
+    });
   });
-
-  pythonProcess.stderr.on('data', (data) => {
-    console.error(`Document processing error: ${data}`);
-  });
-
-  pythonProcess.on('close', (code) => {
-    if (code !== 0) {
-      callback(new Error(`Document processing failed with code ${code}`));
-    } else {
-      callback(null, content);
-    }
-  });
-}
-function generateChatTitle(firstMessage) {
-    if (!firstMessage) return `Chat ${new Date().toLocaleString()}`;
-
-    // Clean the message
-    const cleaned = firstMessage.trim().replace(/[\n\r]+/g, ' ');
-    const words = cleaned.split(' ').filter(word => word.length > 0);
-
-    // Take first 5 words or less
-    const shortMessage = words.slice(0, 5).join(' ');
-    return shortMessage.length > 30 ? shortMessage.slice(0, 30) + '...' : shortMessage;
 }
 
 
@@ -257,105 +311,182 @@ app.get('/researcherAgent', (req, res) => {
     res.render('researcher');
 });
 
-app.post('/api/local-research', async (req, res) => {
-    const { prompt, mode } = req.body;
-
-    if (!prompt) {
-        return res.status(400).json({ error: 'Prompt parameter is required' });
-    }
-
-    try {
-        const pythonProcess = spawn('python', ['generate_agent.py', prompt, 'local-research', mode || 'standard']);
-
-        let responseData = '';
-        let errorData = '';
-
-        pythonProcess.stdout.on('data', (data) => {
-            responseData += data.toString();
-        });
-
-        pythonProcess.stderr.on('data', (data) => {
-            errorData += data.toString();
-        });
-
-        pythonProcess.on('close', (code) => {
-            if (code !== 0 || errorData) {
-                console.error(`Local research error: ${errorData}`);
-                return res.status(500).json({
-                    error: 'Local research process failed',
-                    details: errorData
-                });
-            }
-
-            try {
-                const result = JSON.parse(responseData);
-                res.json(result);
-            } catch (e) {
-                res.status(500).json({
-                    error: 'Failed to parse local research response',
-                    response: responseData
-                });
-            }
-        });
-    } catch (error) {
-        console.error('Local research error:', error);
-        res.status(500).json({
-            error: 'Local research failed',
-            details: error.message
-        });
-    }
+app.get('/SmartDownloader', (req, res) => {
+    res.render('download');
 });
 
-// Enhanced API endpoint
+
+function runPythonScript(scriptName, inputData, callback) {
+    tmp.file({ postfix: '.json' }, (err, inputPath, fd, cleanup) => {
+        if (err) return callback(err);
+
+        fs.writeFile(inputPath, JSON.stringify(inputData), (err) => {
+            if (err) {
+                cleanup();
+                return callback(err);
+            }
+
+            const pythonProcess = spawn('python', [scriptName, inputPath]);
+            let responseData = '';
+            let errorData = '';
+
+            pythonProcess.stdout.on('data', (data) => {
+                responseData += data.toString();
+            });
+
+            pythonProcess.stderr.on('data', (data) => {
+                errorData += data.toString();
+            });
+
+            pythonProcess.on('close', (code) => {
+                cleanup();
+                if (code !== 0 || errorData) {
+                    return callback(new Error(`Process failed: ${errorData}`));
+                }
+                try {
+                    const result = JSON.parse(responseData);
+                    callback(null, result);
+                } catch (e) {
+                    callback(new Error('Failed to parse response'));
+                }
+            });
+        });
+    });
+}
+
+// API endpoint for generating content
 app.post('/api/generate', (req, res) => {
-    const { prompt, agent_type, mode } = req.body;
-    const validAgentTypes = ['generate', 'search', 'web', 'analyze', 'reflect', 'report', 'quickread'];
-    const validModes = ['standard', 'quick'];
+    const { prompt, agent_type, mode, intensity } = req.body;
+    const validAgentTypes = ['generate', 'search', 'web', 'analyze', 'reflect', 'report', 'quickread', 'local-research'];
 
     if (!validAgentTypes.includes(agent_type)) {
         return res.status(400).json({ error: 'Invalid agent type' });
     }
 
-    if (mode && !validModes.includes(mode)) {
-        return res.status(400).json({ error: 'Invalid mode' });
-    }
+    const inputData = {
+        prompt,
+        agent_type,
+        mode: mode || 'standard',
+        intensity: mode === 'deep' ? (intensity || 3) : undefined
+    };
 
-    const pythonProcess = spawn('python', ['generate_agent.py', prompt, agent_type, mode || 'standard']);
-
-    let responseData = '';
-    let errorData = '';
-
-    pythonProcess.stdout.on('data', (data) => {
-        responseData += data.toString();
-    });
-
-    pythonProcess.stderr.on('data', (data) => {
-        errorData += data.toString();
-    });
-
-    pythonProcess.on('close', (code) => {
-        if (code !== 0 || errorData) {
-            console.error(`Agent error: ${errorData}`);
+    runPythonScript('generate_agent.py', inputData, (err, result) => {
+        if (err) {
+            console.error(`Agent error: ${err.message}`);
             return res.status(500).json({
                 error: 'Agent process failed',
-                details: errorData
+                details: err.message
+            });
+        }
+        res.json(result);
+    });
+});
+
+// API endpoint for local research (no web search)
+app.post('/api/local-research', (req, res) => {
+    const { prompt, mode, intensity } = req.body;
+
+    if (!prompt) {
+        return res.status(400).json({ error: 'Prompt parameter is required' });
+    }
+
+    const inputData = {
+        prompt,
+        agent_type: 'local-research',
+        mode: mode || 'standard',
+        intensity: mode === 'deep' ? (intensity || 3) : undefined
+    };
+
+    runPythonScript('generate_agent.py', inputData, (err, result) => {
+        if (err) {
+            console.error(`Local research error: ${err.message}`);
+            return res.status(500).json({
+                error: 'Local research process failed',
+                details: err.message
+            });
+        }
+        res.json(result);
+    });
+});
+
+// API endpoint for web searches using SerpAPI
+app.post('/api/search', async (req, res) => {
+    const { query, mode, intensity } = req.body;
+
+    if (!query) {
+        return res.status(400).json({ error: 'Query parameter is required' });
+    }
+
+    try {
+        const apiKey = 'fbda3e1231c66ca5d55f6df45e4fd770af8a9fd06bf4d5db030eb7b0ec81bf47';
+        const numResults = mode === 'quick' ? 3 : mode === 'deep' ? Math.min(5 + (intensity || 3), 10) : 5;
+
+        const response = await axios.get('https://serpapi.com/search', {
+            params: {
+                q: query,
+                api_key: apiKey,
+                num: numResults,
+                hl: 'en',
+                gl: 'us'
+            }
+        });
+
+        // Process the SerpAPI response
+        let results = response.data.organic_results.map(result => ({
+            title: result.title,
+            link: result.link,
+            snippet: result.snippet
+        }));
+
+        // For deep mode, add credibility assessment
+        if (mode === 'deep') {
+            results = results.map(result => {
+                // Simple heuristic for credibility - in a real app you'd use a more sophisticated approach
+                let credibility = 'Medium';
+                if (result.link.includes('.edu') || result.link.includes('.gov') || result.link.includes('academic')) {
+                    credibility = 'High';
+                } else if (result.link.includes('blogspot') || result.link.includes('wordpress')) {
+                    credibility = 'Low';
+                }
+                return { ...result, credibility };
             });
         }
 
-        try {
-            const result = JSON.parse(responseData);
-            res.json(result);
-        } catch (e) {
-            res.status(500).json({
-                error: 'Failed to parse agent response',
-                response: responseData
-            });
-        }
-    });
+        res.json({ results });
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).json({
+            error: 'Search failed',
+            details: error.message
+        });
+    }
+});
+
+
+
+function generateChatTitle(firstMessage) {
+  if (!firstMessage) return `Chat ${new Date().toLocaleString()}`;
+
+  // Clean the message
+  const cleaned = firstMessage.trim().replace(/[\n\r]+/g, ' ');
+  const words = cleaned.split(' ').filter(word => word.length > 0);
+
+  // Take first 5 words or less
+  const shortMessage = words.slice(0, 5).join(' ');
+  return shortMessage.length > 30 ? shortMessage.slice(0, 30) + '...' : shortMessage;
+}
+
+// WebSocket for real-time updates
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
 });
 
 // Start server
 const PORT = process.env.PORT || 3040;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
