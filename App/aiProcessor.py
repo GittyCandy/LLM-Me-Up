@@ -5,12 +5,10 @@ from typing import List, Dict
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python aiProcessor.py <json_data>")
-        sys.exit(1)
-
     try:
-        data = json.loads(sys.argv[1])
+        # Read from stdin instead of command line args
+        data = json.load(sys.stdin)
+
         prompt = data.get('prompt', '')
         model = data.get('model', 'dolphin-llama3:8b')
         conversation_history = data.get('conversationHistory', [])
@@ -18,16 +16,13 @@ def main():
 
         llm = OllamaLLM(
             model=model,
-            temperature=0.7,  # Default, can be overridden
+            temperature=0.7,
             top_k=40,
             top_p=0.9,
             repeat_penalty=1.1
         )
 
-        # Build the full prompt with context if provided
         full_prompt = build_prompt(prompt, conversation_history, document_content)
-
-        # Stream the response for real-time updates
         response = llm.stream(full_prompt)
 
         for chunk in response:

@@ -19,11 +19,11 @@
 
 /* Dark mode variables */
 [data-theme="dark"] {
-  --dark-color: #f8f9fa;
-  --light-color: #1a1a2e;
-  --chat-bg: #16213e;
-  --ai-bubble: #0f3460;
-  --gray-color: #a0a0a0;
+  --dark-color: #f3f4f6;
+  --light-color: #1e1e2e;
+  --chat-bg: #111827;
+  --ai-bubble: #1f2937;
+  --gray-color: #9ca3af;
   --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
@@ -115,7 +115,7 @@ body {
 .model-selector select:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(245, 66, 102, 0.2);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
 }
 
 /* Button Styles */
@@ -135,7 +135,7 @@ body {
 }
 
 .icon-btn:hover {
-  background-color: rgba(245, 66, 102, 0.1);
+  background-color: rgba(79, 70, 229, 0.1);
 }
 
 .icon-btn:after {
@@ -320,7 +320,7 @@ body {
 
 .quick-prompt {
   padding: 8px 16px;
-  background-color: rgba(245, 66, 102, 0.1);
+  background-color: rgba(79, 70, 229, 0.1);
   color: var(--primary-color);
   border: none;
   border-radius: 20px;
@@ -330,7 +330,7 @@ body {
 }
 
 .quick-prompt:hover {
-  background-color: rgba(245, 66, 102, 0.2);
+  background-color: rgba(79, 70, 229, 0.2);
 }
 
 /* Chat History Styles */
@@ -450,7 +450,7 @@ body {
 .file-preview {
   width: 100%;
   padding: 12px;
-  background-color: rgba(245, 66, 102, 0.1);
+  background-color: rgba(79, 70, 229, 0.1);
   border-radius: var(--border-radius);
   margin-top: 8px;
   position: relative;
@@ -504,7 +504,7 @@ body {
 }
 
 .file-preview-toggle:hover {
-  background-color: rgba(245, 66, 102, 0.1);
+  background-color: rgba(79, 70, 229, 0.1);
 }
 
 .file-preview-remove {
@@ -522,7 +522,7 @@ body {
 }
 
 .file-preview-remove:hover {
-  background-color: rgba(220, 53, 69, 0.1);
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 #viewFullDocument {
@@ -558,7 +558,7 @@ body {
 .message-input textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(245, 66, 102, 0.2);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
 }
 
 #sendBtn {
@@ -678,7 +678,8 @@ body {
   background-color: rgba(0, 0, 0, 0.05);
   padding: 2px 4px;
   border-radius: 4px;
-  font-family: monospace;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.9em;
 }
 
 [data-theme="dark"] .ai-message code {
@@ -687,14 +688,23 @@ body {
 
 .ai-message pre {
   background-color: rgba(0, 0, 0, 0.05);
-  padding: 10px;
+  padding: 12px;
   border-radius: 6px;
   overflow-x: auto;
   margin: 10px 0;
+  position: relative;
 }
 
 [data-theme="dark"] .ai-message pre {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ai-message pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85em;
+  line-height: 1.5;
 }
 
 .ai-message blockquote {
@@ -702,6 +712,22 @@ body {
   padding-left: 10px;
   margin: 10px 0;
   color: var(--gray-color);
+}
+
+/* Code block language indicator */
+.code-language {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 2px 8px;
+  font-size: 0.7em;
+  border-bottom-left-radius: 4px;
+  color: var(--dark-color);
+}
+
+[data-theme="dark"] .code-language {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* History Panel Styles */
@@ -761,11 +787,11 @@ body {
 }
 
 .history-item:hover {
-  background-color: rgba(245, 66, 102, 0.1);
+  background-color: rgba(79, 70, 229, 0.1);
 }
 
 .history-item.active {
-  background-color: rgba(245, 66, 102, 0.2);
+  background-color: rgba(79, 70, 229, 0.2);
   border-left: 3px solid var(--primary-color);
 }
 
@@ -949,7 +975,7 @@ body {
 
 .document-content {
   white-space: pre-wrap;
-  font-family: monospace;
+  font-family: 'Fira Code', 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.5;
   padding: 10px;
@@ -1129,5 +1155,42 @@ body {
 
   .file-preview-remove {
     right: 10px;
+  }
+}
+
+/* Code copy button */
+.copy-code-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.7em;
+  color: white;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+pre:hover .copy-code-btn {
+  opacity: 1;
+}
+
+.copy-code-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive tweaks for code blocks */
+@media (max-width: 600px) {
+  .ai-message pre {
+    padding: 8px;
+    font-size: 0.8em;
+  }
+
+  .code-language {
+    font-size: 0.6em;
+    padding: 1px 4px;
   }
 }

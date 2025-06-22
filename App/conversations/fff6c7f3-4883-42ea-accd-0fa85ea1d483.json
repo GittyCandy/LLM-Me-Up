@@ -1,0 +1,11 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi can u write me code for a webpage in css,html,javascrupt and use node js. theme is cooffee shop",
+      "timestamp": "2025-06-21T09:53:25.279Z"
+    }
+  ],
+  "name": "hi can u write me",
+  "updatedAt": "2025-06-21T09:53:25.279Z"
+}

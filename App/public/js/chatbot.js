@@ -694,7 +694,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.documentElement.setAttribute('data-theme', settings.theme === 'system'
                 ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
                 : settings.theme);
-            document.getElementById('themeSelect').value = settings.theme;
+            themeSelect.value = settings.theme;
+        }
+
+        // Apply code theme setting
+        if (settings.codeTheme) {
+            codeThemeSelect.value = settings.codeTheme;
         }
 
         // Apply temperature setting
@@ -713,7 +718,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function saveSettings() {
         const settings = {
             model: modelSelect.value,
-            theme: document.getElementById('themeSelect').value,
+            theme: themeSelect.value,
+            codeTheme: codeThemeSelect.value,
             temperature: parseFloat(document.getElementById('temperature').value),
             maxTokens: parseInt(document.getElementById('maxTokens').value)
         };
@@ -725,8 +731,27 @@ document.addEventListener('DOMContentLoaded', function() {
             ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
             : settings.theme);
 
+        // Apply code theme
+        applyCodeTheme();
+
         toggleSettingsPanel();
     }
+
+    function applyCodeTheme() {
+        const codeTheme = codeThemeSelect.value;
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/${codeTheme}.min.css`;
+
+        // Remove any existing highlight.js theme
+        const existingTheme = document.querySelector('link[href*="highlight.js"]');
+        if (existingTheme) {
+            document.head.removeChild(existingTheme);
+        }
+
+        document.head.appendChild(link);
+    }
+
 
     function setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);

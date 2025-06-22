@@ -1,0 +1,11 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "give me a coofee recipe",
+      "timestamp": "2025-06-21T10:19:25.484Z"
+    }
+  ],
+  "name": "give me a coofee recipe",
+  "updatedAt": "2025-06-21T10:19:25.484Z"
+}

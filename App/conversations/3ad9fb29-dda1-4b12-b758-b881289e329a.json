@@ -1,0 +1,11 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "write me a 3000 word story on icecreams and summer",
+      "timestamp": "2025-06-21T12:24:34.450Z"
+    }
+  ],
+  "name": "write me a 3000 word",
+  "updatedAt": "2025-06-21T12:24:34.450Z"
+}

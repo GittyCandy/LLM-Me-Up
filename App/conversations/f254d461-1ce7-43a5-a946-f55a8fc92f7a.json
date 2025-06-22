@@ -1,0 +1,11 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "[object PointerEvent]",
+      "timestamp": "2025-06-21T09:29:36.117Z"
+    }
+  ],
+  "name": "[object PointerEvent]",
+  "updatedAt": "2025-06-21T09:29:36.117Z"
+}

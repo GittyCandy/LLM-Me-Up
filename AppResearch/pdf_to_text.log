@@ -1,9 +1,0 @@
-2025-06-16 18:39:10,132 - INFO - Found 1 PDF file(s) to process
-2025-06-16 18:39:10,892 - INFO - Successfully converted .\Lect 1.1-Network_Security_Basics.pdf to output_texts\Lect 1.1-Network_Security_Basics.txt
-2025-06-16 18:39:10,919 - INFO - 
-Conversion Summary:
-2025-06-16 18:39:10,925 - INFO -   Total PDFs processed: 1
-2025-06-16 18:39:10,925 - INFO -   Successful conversions: 1
-2025-06-16 18:39:10,925 - INFO -   Failed conversions: 0
-2025-06-16 18:39:10,925 - INFO -   Time taken: 0.79 seconds
-2025-06-16 18:39:10,925 - INFO -   Text files saved to: E:\PyCharm\Pycharm_PROJECTS\LLMPortal\LLM-Me-Up\AppResearch\output_texts

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.lordicon.com/lordicon-1.1.0.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="/css/chatbot.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
                 <lord-icon
                     src="https://cdn.lordicon.com/aichnomm.json"
                     trigger="loop"
-                    colors="primary:#f54266,secondary:#f54266"
+                    colors="primary:#f54266,secondary:#ff7b93"
                     state="hover-lol"
                     stroke="bold"
                     style="width:50px;height:50px">
@@ -145,6 +145,18 @@
                             <option value="system">System Default</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="codeThemeSelect">Code Theme</label>
+                        <select id="codeThemeSelect">
+                            <option value="github-dark">Dark</option>
+                            <option value="github">Light</option>
+                            <option value="atom-one-dark">Atom Dark</option>
+                            <option value="atom-one-light">Atom Light</option>
+                            <option value="monokai">Monokai</option>
+                            <option value="solarized-dark">Solarized Dark</option>
+                            <option value="solarized-light">Solarized Light</option>
+                        </select>
+                    </div>
                 </div>
                 <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
             </div>
@@ -176,6 +188,7 @@
                     <button class="quick-prompt" data-prompt="Explain quantum computing in simple terms">Quantum Computing</button>
                     <button class="quick-prompt" data-prompt="Summarize this document for me">Document Summary</button>
                     <button class="quick-prompt" data-prompt="Write a Python script to analyze CSV data">Python CSV Analysis</button>
+                    <button class="quick-prompt" data-prompt="Explain this code:">Code Explanation</button>
                 </div>
             </div>
             <div class="chat-history" id="chatHistory">
@@ -185,7 +198,7 @@
             <div class="input-area">
                 <div class="input-controls">
                     <div class="file-upload">
-                        <input type="file" id="documentUpload" accept=".pdf,.txt,.docx,.pptx,.xlsx,.csv,.md">
+                        <input type="file" id="documentUpload" accept=".pdf,.txt,.docx,.pptx,.xlsx,.csv,.md,.js,.py,.java,.html,.css,.json,.xml">
                         <button id="uploadBtn">
                             <lord-icon
                                 src="https://cdn.lordicon.com/ukdwhewu.json"
@@ -228,7 +241,7 @@
                     <lord-icon
                         src="https://cdn.lordicon.com/ebyacdql.json"
                         trigger="hover"
-                        colors="primary:#f54266"
+                        colors="primary:#f54266cd "
                         style="width:20px;height:20px">
                     </lord-icon>
                 </button>

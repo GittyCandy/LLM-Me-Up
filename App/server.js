@@ -44,6 +44,7 @@ const DOCUMENTS_DIR = path.join(__dirname, 'documents');
 // Models data
 const MODELS = [
   { value: 'deepseek-r1:8b', name: 'DeepSeek R1' },
+  { value: 'deepseek-coder:6.7b', name: 'DeepSeek Coder' },
   { value: 'dolphin-llama3:8b', name: 'Dolphin (Uncensored)' },
   { value: 'llama2', name: 'Llama2' }
 ];
@@ -240,6 +241,7 @@ app.get('/api/document/:id', (req, res) => {
 });
 
 // AI Processing Functions
+
 async function processAIRequest({ prompt, model = 'dolphin-llama3:8b', conversationHistory = [], documentContent = '' }) {
   return new Promise((resolve, reject) => {
     const data = {
@@ -251,9 +253,12 @@ async function processAIRequest({ prompt, model = 'dolphin-llama3:8b', conversat
 
     const pythonProcess = spawn('python', [
       '-u',
-      path.join(__dirname, 'aiProcessor.py'),
-      JSON.stringify(data)
+      path.join(__dirname, 'aiProcessor.py')
     ]);
+
+    // Write data to stdin
+    pythonProcess.stdin.write(JSON.stringify(data));
+    pythonProcess.stdin.end();
 
     let response = '';
     let error = '';
