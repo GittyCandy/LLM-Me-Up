@@ -1,0 +1,26 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi",
+      "timestamp": "2025-06-24T07:32:42.719Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello there! How can I help you today?",
+      "timestamp": "2025-06-24T07:32:45.086Z"
+    },
+    {
+      "role": "user",
+      "content": "make me a coffee recipe",
+      "timestamp": "2025-06-24T07:32:57.925Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Here's a simple coffee recipe for you:\r\n\r\nIngredients:\r\n- 1 cup of water\r\n- 1 tablespoon of ground coffee\r\n\r\nInstructions:\r\n1. Boil the water in a kettle.\r\n2. Add one tablespoon of ground coffee to your mug or cup.\r\n3. Pour the hot water over the ground coffee.\r\n4. Stir gently and let it sit for about 5 minutes to allow the flavors to develop.\r\n5. Enjoy your freshly brewed coffee!",
+      "timestamp": "2025-06-24T07:35:01.593Z"
+    }
+  ],
+  "name": "hi",
+  "updatedAt": "2025-06-24T07:32:57.925Z"
+}

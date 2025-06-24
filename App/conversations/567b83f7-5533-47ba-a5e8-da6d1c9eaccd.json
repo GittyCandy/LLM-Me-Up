@@ -1,0 +1,16 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi",
+      "timestamp": "2025-06-24T07:10:09.455Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! How can I assist you today?",
+      "timestamp": "2025-06-24T07:10:12.779Z"
+    }
+  ],
+  "name": "hi",
+  "updatedAt": "2025-06-24T07:10:09.455Z"
+}

@@ -376,10 +376,13 @@ body {
 }
 
 .message-content {
-  white-space: pre-wrap;
+  white-space: pre-line;
   word-wrap: break-word;
-  padding-right: 30px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  padding-right: 35px;
+  padding-left: 15px;
 }
+
 
 .message-time {
   font-size: 11px;
@@ -1193,4 +1196,31 @@ pre:hover .copy-code-btn {
     font-size: 0.6em;
     padding: 1px 4px;
   }
+}
+
+.message-actions .regenerate-btn {
+    color: var(--primary-color);
+}
+
+.message-actions .regenerate-btn:hover {
+    color: var(--primary-dark);
+}
+/* Add to your CSS file */
+.message-content {
+    transition: all 0.1s ease;
+}
+
+.typing-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background-color: var(--text-color);
+    animation: blink 1s infinite;
+    margin-left: 2px;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }

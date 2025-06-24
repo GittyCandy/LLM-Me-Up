@@ -2,7 +2,7 @@ import sys
 import json
 from langchain_ollama import OllamaLLM
 from typing import List, Dict
-
+import time
 
 def main():
     try:
@@ -27,11 +27,11 @@ def main():
 
         for chunk in response:
             print(chunk, end='', flush=True)
+            time.sleep(0.02)  # Small delay to make streaming visible
 
     except Exception as e:
-        print(f"Error processing AI request: {str(e)}")
+        print(f"Error processing AI request: {str(e)}", file=sys.stderr)
         sys.exit(1)
-
 
 def build_prompt(prompt: str, conversation_history: List[Dict], document_content: str = '') -> str:
     prompt_parts = []
@@ -58,7 +58,6 @@ def build_prompt(prompt: str, conversation_history: List[Dict], document_content
     prompt_parts.append("Assistant:")
 
     return "\n".join(prompt_parts)
-
 
 if __name__ == "__main__":
     main()

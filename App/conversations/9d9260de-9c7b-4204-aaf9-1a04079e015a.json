@@ -1,0 +1,26 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "gimme recipe for coffe step by step",
+      "timestamp": "2025-06-24T07:02:30.377Z"
+    },
+    {
+      "role": "assistant",
+      "content": "1. Gather ingredients and supplies:\r\n   - Ground coffee beans\r\n   - Cold water\r\n   - Coffee filter (if using a drip coffee maker or pour-over method)\r\n   - Kettle or pot to heat water\r\n   - Mug or cup\r\n\r\n2. Measure out the desired amount of coffee grounds based on your preferred strength and number of cups.\r\n3. If using a drip coffee maker, place a coffee filter in the basket and add the measured coffee grounds. If using a pour-over method, pre-wet the coffee filter and place it over your mug or cup.\r\n4. Heat water in a kettle or pot until it reaches around 195-205�F (91-96�C). The ideal temperature for brewing coffee is just below boiling point.\r\n5. Pour the hot water over the coffee grounds in the basket, making sure to saturate all of them evenly. Allow the water to flow through the grounds and into your mug or cup.\r\n6. Once all the water has passed through the grounds, remove the coffee filter (if using a drip coffee maker) or dispose of the used grounds (if using a pour-over method).\r\n7. Enjoy your freshly brewed coffee!",
+      "timestamp": "2025-06-24T07:27:55.806Z"
+    },
+    {
+      "role": "user",
+      "content": "thanks",
+      "timestamp": "2025-06-24T07:44:18.609Z"
+    },
+    {
+      "role": "assistant",
+      "content": "You're welcome! If you have any other questions or need more assistance, just let me know.\r\n",
+      "timestamp": "2025-06-24T07:44:41.785Z"
+    }
+  ],
+  "name": "gimme recipe for coffe step",
+  "updatedAt": "2025-06-24T07:44:18.609Z"
+}

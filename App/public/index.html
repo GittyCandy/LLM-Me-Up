@@ -3,140 +3,362 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Agents Hub</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>AI Agents Hub | Your Intelligent Assistant Portal</title>
+  <meta name="description" content="Access powerful AI agents for chat, research, coding, email and more. Your all-in-one AI productivity suite.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.lordicon.com/lordicon-1.1.0.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/homepage.css">
 </head>
 <body>
   <div class="app-container">
-    <div class="background-animation"></div>
+    <div class="particle-background" id="particles-js"></div>
+    <div class="gradient-overlay"></div>
 
-    <main class="main-content">
-      <div class="welcome-section">
-        <div class="hero-icon-container">
+    <header class="app-header">
+      <div class="header-content">
+        <div class="logo">
           <lord-icon
             src="https://cdn.lordicon.com/aichnomm.json"
             trigger="loop"
+            stroke="bold"
             colors="primary:#f54266,secondary:#f54266"
             state="loop"
-            style="width:275px;height:275px">
+            style="width:40px;height:40px">
           </lord-icon>
-          <div class="glow-effect"></div>
+          <span>AI Hub</span>
         </div>
-        <h1>Your AI Power Center</h1>
-        <p class="subtitle">Select an agent below to begin your AI-powered journey</p>
+        <nav class="main-nav">
+          <a href="#" class="active">Home</a>
+          <a href="#">Features</a>
+          <a href="#">Agents</a>
+          <a href="#">Pricing</a>
+        </nav>
+        <div class="header-actions">
+          <button class="btn btn-ghost">Sign In</button>
+          <button class="btn btn-primary">Get Started</button>
+          <button class="theme-toggle" aria-label="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="hero-section">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span>AI-Powered Productivity</span>
+            <lord-icon
+    src="https://cdn.lordicon.com/rihvnffu.json"
+    trigger="loop"
+    delay="2000"
+    state="in-bolt"
+    colors="primary:#f54266"
+    style="width:26px;height:26px">
+</lord-icon>
+          </div>
+          <h1>Supercharge Your Workflow with <span class="gradient-text">AI Agents</span></h1>
+          <p class="hero-subtitle">Select from our specialized AI assistants to enhance your productivity, creativity, and efficiency in any task.</p>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-value">10K+</div>
+              <div class="stat-label">Daily Users</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">97%</div>
+              <div class="stat-label">Satisfaction</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">24/7</div>
+              <div class="stat-label">Availability</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="floating-cards">
+            <a href="/chatbot" class="card card-1">
+              <lord-icon
+                src="https://cdn.lordicon.com/bpptgtfr.json"
+                trigger="loop"
+                                    delay="5000"
+                colors="primary:#f54266,secondary:#f54266"
+                style="width:36px;height:36px">
+              </lord-icon>
+              <span>Chatbot</span>
+            </a>
+
+            <a href="/researcherAgent" class="card card-2">
+              <lord-icon
+                src="https://cdn.lordicon.com/vgxjrbxm.json"
+                trigger="loop"
+                    delay="5000"
+                colors="primary:#f54266,secondary:#f54266"
+                style="width:36px;height:36px">
+              </lord-icon>
+              <span>Researcher</span>
+            </a>
+
+            <a href="/codeAgent" class="card card-3">
+              <lord-icon
+                src="https://cdn.lordicon.com/eeolefdw.json"
+                                trigger="loop"
+                    delay="5000"
+                colors="primary:#f54266,secondary:#f54266"
+                style="width:36px;height:36px">
+              </lord-icon>
+              <span>Coding</span>
+            </a>
+          </div>
+        </div>
       </div>
 
-      <div class="agents-menu">
-        <div class="menu-column">
-          <a href="/chatbot" class="menu-item">
-            <lord-icon
-              src="https://cdn.lordicon.com/bpptgtfr.json"
-              trigger="hover"
-              colors="primary:#f54266,secondary:#f54266"
-              stroke="bold"
-              style="width:50px;height:50px">
-            </lord-icon>
-            <div class="menu-text">
-              <h3>Chatbot</h3>
-              <p>Intelligent conversational assistant</p>
-            </div>
-            <i class="fas fa-chevron-right"></i>
-          </a>
-
-          <a href="/researcherAgent" class="menu-item">
-            <lord-icon
-              src="https://cdn.lordicon.com/vgxjrbxm.json"
-              trigger="hover"
-              colors="primary:#f54266,secondary:#f54266"
-              stroke="bold"
-              style="width:50px;height:50px">
-            </lord-icon>
-            <div class="menu-text">
-              <h3>Researcher</h3>
-              <p>Find and analyze information</p>
-            </div>
-            <i class="fas fa-chevron-right"></i>
-          </a>
-
-          <a href="/EmailAgent" class="menu-item">
-            <lord-icon
-              src="https://cdn.lordicon.com/gejrxhkx.json"
-              trigger="hover"
-              colors="primary:#f54266,secondary:#f54266"
-              stroke="bold"
-              style="width:50px;height:50px">
-            </lord-icon>
-            <div class="menu-text">
-              <h3>Email Assistant</h3>
-              <p>Smart email composition</p>
-            </div>
-            <i class="fas fa-chevron-right"></i>
-          </a>
+      <div class="agents-section">
+        <div class="section-header">
+          <h2>Your AI Agent Collection</h2>
+          <p>Specialized assistants for every task</p>
         </div>
 
-        <div class="menu-column">
-          <a href="/codeAgent" class="menu-item">
-            <lord-icon
-              src="https://cdn.lordicon.com/eeolefdw.json"
-              trigger="hover"
-              colors="primary:#f54266,secondary:#f54266"
-              stroke="bold"
-              style="width:50px;height:50px">
-            </lord-icon>
-            <div class="menu-text">
-              <h3>Code Assistant</h3>
-              <p>Write and debug code</p>
+        <div class="agents-grid">
+          <a href="/chatbot" class="agent-card">
+            <div class="card-icon">
+              <lord-icon
+                src="https://cdn.lordicon.com/bpptgtfr.json"
+                trigger="hover"
+                colors="primary:#f54266,secondary:#f54266"
+                stroke="bold"
+                style="width:48px;height:48px">
+              </lord-icon>
+              <div class="icon-bg"></div>
             </div>
-            <i class="fas fa-chevron-right"></i>
+            <h3>Chatbot</h3>
+            <p>Intelligent conversational assistant that understands context and provides human-like responses</p>
+            <div class="card-footer">
+              <span class="card-tag">Popular</span>
+              <div class="card-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </div>
+            <div class="card-hover-effect"></div>
           </a>
 
-          <a href="/" class="menu-item">
-            <lord-icon
-              src="https://cdn.lordicon.com/eoygayvy.json"
-              trigger="hover"
-              colors="primary:#f54266,secondary:#f54266"
-              stroke="bold"
-              style="width:50px;height:50px">
-            </lord-icon>
-            <div class="menu-text">
-              <h3>Smart Downloader</h3>
-              <p>Create compelling content</p>
+          <a href="/researcherAgent" class="agent-card">
+            <div class="card-icon">
+              <lord-icon
+                src="https://cdn.lordicon.com/vgxjrbxm.json"
+                trigger="hover"
+                colors="primary:#f54266,secondary:#f54266"
+                stroke="bold"
+                style="width:48px;height:48px">
+              </lord-icon>
+              <div class="icon-bg"></div>
             </div>
-            <i class="fas fa-chevron-right"></i>
+            <h3>Researcher</h3>
+            <p>Find, analyze and summarize information from multiple sources quickly and accurately</p>
+            <div class="card-footer">
+              <span class="card-tag">New</span>
+              <div class="card-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </div>
+            <div class="card-hover-effect"></div>
           </a>
 
-          <a href="/settings" class="menu-item">
-            <lord-icon
-              src="https://cdn.lordicon.com/asyunleq.json"
-              trigger="hover"
-              colors="primary:#f54266,secondary:#f54266"
-              stroke="bold"
-              style="width:50px;height:50px">
-            </lord-icon>
-            <div class="menu-text">
-              <h3>Settings</h3>
-              <p>Configure your preferences</p>
+          <a href="/EmailAgent" class="agent-card">
+            <div class="card-icon">
+              <lord-icon
+                src="https://cdn.lordicon.com/gejrxhkx.json"
+                trigger="hover"
+                colors="primary:#f54266,secondary:#f54266"
+                stroke="bold"
+                style="width:48px;height:48px">
+              </lord-icon>
+              <div class="icon-bg"></div>
             </div>
-            <i class="fas fa-chevron-right"></i>
+            <h3>Email Assistant</h3>
+            <p>Compose, respond and manage your emails with AI-powered suggestions and automation</p>
+            <div class="card-footer">
+              <div class="card-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </div>
+            <div class="card-hover-effect"></div>
           </a>
+
+          <a href="/codeAgent" class="agent-card">
+            <div class="card-icon">
+              <lord-icon
+                src="https://cdn.lordicon.com/eeolefdw.json"
+                trigger="hover"
+                colors="primary:#f54266,secondary:#f54266"
+                stroke="bold"
+                style="width:48px;height:48px">
+              </lord-icon>
+              <div class="icon-bg"></div>
+            </div>
+            <h3>Code Assistant</h3>
+            <p>Write, debug and explain code in multiple programming languages with AI guidance</p>
+            <div class="card-footer">
+              <span class="card-tag">Developer</span>
+              <div class="card-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </div>
+            <div class="card-hover-effect"></div>
+          </a>
+
+          <a href="/" class="agent-card">
+            <div class="card-icon">
+              <lord-icon
+                src="https://cdn.lordicon.com/eoygayvy.json"
+                trigger="hover"
+                colors="primary:#f54266,secondary:#f54266"
+                stroke="bold"
+                style="width:48px;height:48px">
+              </lord-icon>
+              <div class="icon-bg"></div>
+            </div>
+            <h3>Smart Downloader</h3>
+            <p>Create compelling content by gathering and synthesizing information from various sources</p>
+            <div class="card-footer">
+              <div class="card-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </div>
+            <div class="card-hover-effect"></div>
+          </a>
+
+          <a href="/settings" class="agent-card">
+            <div class="card-icon">
+              <lord-icon
+                src="https://cdn.lordicon.com/asyunleq.json"
+                trigger="hover"
+                colors="primary:#f54266,secondary:#f54266"
+                stroke="bold"
+                style="width:48px;height:48px">
+              </lord-icon>
+              <div class="icon-bg"></div>
+            </div>
+            <h3>Settings</h3>
+            <p>Configure your preferences, manage your account and customize your AI experience</p>
+            <div class="card-footer">
+              <div class="card-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </div>
+            <div class="card-hover-effect"></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="features-section">
+        <div class="section-header">
+          <h2>Why Choose AI Agents Hub?</h2>
+          <p>Experience the next generation of AI assistance</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-brain"></i>
+            </div>
+            <h3>Advanced Intelligence</h3>
+            <p>Our agents utilize state-of-the-art AI models to provide the most accurate and relevant responses.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3>Secure & Private</h3>
+            <p>Your data is encrypted and never stored longer than necessary for your session.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-sliders-h"></i>
+            </div>
+            <h3>Customizable</h3>
+            <p>Tailor each agent to your specific needs and preferences for a personalized experience.</p>
+          </div>
         </div>
       </div>
     </main>
 
     <footer class="app-footer">
-      <p>© 2025 AI Agents Hub | By GittyCandy</p>
-      <div class="footer-links">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">Contact Me</a>
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="logo">
+            <lord-icon
+              src="https://cdn.lordicon.com/aichnomm.json"
+              trigger="loop"
+              colors="primary:#f54266,secondary:#ffffff"
+              stroke="bold"
+              state="loop"
+              style="width:36px;height:36px">
+            </lord-icon>
+            <span>AI Agents Hub</span>
+          </div>
+          <p>The most advanced collection of specialized AI assistants for all your needs.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+            <a href="#"><i class="fab fa-discord"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-links">
+          <div class="link-group">
+            <h4>Product</h4>
+            <a href="#">Features</a>
+            <a href="#">Agents</a>
+            <a href="#">Pricing</a>
+            <a href="#">Updates</a>
+          </div>
+
+          <div class="link-group">
+            <h4>Company</h4>
+            <a href="#">About</a>
+            <a href="#">Careers</a>
+            <a href="#">Blog</a>
+            <a href="#">Press</a>
+          </div>
+
+          <div class="link-group">
+            <h4>Resources</h4>
+            <a href="#">Documentation</a>
+            <a href="#">Tutorials</a>
+            <a href="#">API</a>
+            <a href="#">Community</a>
+          </div>
+
+          <div class="link-group">
+            <h4>Legal</h4>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Security</a>
+            <a href="#">Cookies</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2025 AI Agents Hub | By GittyCandy. All rights reserved.</p>
+        <div class="footer-actions">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Contact Me</a>
+        </div>
       </div>
     </footer>
   </div>
 
   <script src="https://cdn.lordicon.com/lordicon-1.1.0.js"></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <script src="/js/homepage.js"></script>
 </body>
 </html>

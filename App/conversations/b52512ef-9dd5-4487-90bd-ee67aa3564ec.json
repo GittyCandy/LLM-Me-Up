@@ -1,0 +1,36 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi",
+      "timestamp": "2025-06-24T06:55:51.245Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! How can I assist you today?",
+      "timestamp": "2025-06-24T06:58:28.332Z"
+    },
+    {
+      "role": "user",
+      "content": "im goood hbu",
+      "timestamp": "2025-06-24T06:58:34.705Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm feeling great! How about you? What's on your mind today?",
+      "timestamp": "2025-06-24T06:58:40.027Z"
+    },
+    {
+      "role": "user",
+      "content": "nothing gimme a recipe for coofee",
+      "timestamp": "2025-06-24T06:58:53.175Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Of course! Here's a simple coffee recipe:\r\n\r\n**Coffee**\r\n- 1 cup of water\r\n- 1 tablespoon of ground coffee\r\n- Optional additions: milk, sugar, or cream\r\n\r\n1. Boil the water in a kettle.\r\n2. Add the ground coffee to your mug.\r\n3. Pour the hot water over the coffee grounds in your mug.\r\n4. Stir well and enjoy!",
+      "timestamp": "2025-06-24T06:59:05.606Z"
+    }
+  ],
+  "name": "hi",
+  "updatedAt": "2025-06-24T06:58:53.175Z"
+}

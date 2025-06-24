@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sendBtn.addEventListener('click', sendMessage);
         welcomeInput.addEventListener('keydown', handleWelcomeInputKeydown);
 
-        // Quick prompts - fixed event listener attachment
+        // Quick prompts
         quickPrompts.forEach(prompt => {
             prompt.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleHistoryPanel();
         });
 
-        // New chat button - fixed event listener
+        // New chat button
         newChatBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             startNewChat();
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Model selection
         modelSelect.addEventListener('change', updateModelInfo);
 
-        // File upload - fixed event propagation
+        // File upload
         uploadBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             documentUpload.click();
@@ -132,6 +132,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Connected to server via WebSocket');
         });
 
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+
         socket.on('ai_response', (data) => {
             if (data.conversationId === currentConversationId) {
                 updateAIResponse(data);
@@ -144,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Click outside to close panels - fixed event delegation
+        // Click outside to close panels
         document.addEventListener('click', (e) => {
             if (!historyPanel.contains(e.target) && e.target !== showHistoryBtn && !showHistoryBtn.contains(e.target)) {
                 historyPanel.classList.remove('open');
@@ -236,7 +240,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadConversation(conversationId) {
         fetch(`/api/conversation/${conversationId}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load conversation');
+                }
+                return response.json();
+            })
             .then(data => {
                 currentConversationId = conversationId;
                 chatHistory.innerHTML = '';
@@ -255,31 +264,177 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error loading conversation:', error);
+                showErrorToast('Failed to load conversation');
                 startNewChat();
             });
     }
 
-    function sendMessage() {
-        const message = welcomeSection.style.display !== 'none' ? welcomeInput.value.trim() : messageInput.value.trim();
-        if (!message || isProcessing) return;
+// Update the sendMessage function to handle streaming
+function sendMessage() {
+    const message = welcomeSection.style.display !== 'none' ? welcomeInput.value.trim() : messageInput.value.trim();
+    if (!message || isProcessing) return;
 
-        // If we're in welcome screen, start a new chat
-        if (welcomeSection.style.display !== 'none') {
-            startNewChat(message);
-            return;
+    // If we're in welcome screen, start a new chat
+    if (welcomeSection.style.display !== 'none') {
+        startNewChat(message);
+        return;
+    }
+
+    isProcessing = true;
+    messageInput.disabled = true;
+    sendBtn.disabled = true;
+
+    // Add user message to chat
+    const userMessageTimestamp = new Date().toISOString();
+    appendMessage('user', message, userMessageTimestamp, currentDocumentId);
+    if (welcomeSection.style.display !== 'none') {
+        welcomeInput.value = '';
+    } else {
+        messageInput.value = '';
+    }
+
+    // Create a placeholder for the AI response
+    const aiMessageDiv = document.createElement('div');
+    aiMessageDiv.className = 'message assistant-message new-message';
+    const formattedTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    aiMessageDiv.innerHTML = `
+        <div class="message-content"></div>
+        <div class="message-time">${formattedTime}</div>
+        <div class="message-actions">
+            <button class="action-btn tooltip copy-btn" title="Copy message">
+                <i class="fas fa-copy"></i>
+                <span class="tooltiptext">Copy</span>
+            </button>
+            <button class="action-btn tooltip regenerate-btn" title="Regenerate response">
+                <i class="fas fa-sync-alt"></i>
+                <span class="tooltiptext">Regenerate</span>
+            </button>
+        </div>
+    `;
+
+    chatHistory.appendChild(aiMessageDiv);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    // Prepare data for API
+    const data = {
+        message: message,
+        model: modelSelect.value,
+        conversationId: currentConversationId,
+        documentId: currentDocumentId
+    };
+
+    // Create a unique ID for this message
+    const messageId = Date.now().toString();
+
+    // Connect to WebSocket for streaming
+    socket.emit('start_stream', {
+        messageId: messageId,
+        data: data
+    });
+
+    let fullResponse = '';
+    let isFirstChunk = true;
+
+    // Listen for stream chunks
+    socket.on(`stream_chunk_${messageId}`, (chunk) => {
+        if (isFirstChunk) {
+            // Remove any typing indicators if this is the first chunk
+            const indicators = document.querySelectorAll('.typing-indicator');
+            indicators.forEach(indicator => indicator.remove());
+            isFirstChunk = false;
         }
+
+        fullResponse += chunk;
+        const contentDiv = aiMessageDiv.querySelector('.message-content');
+
+        // Process markdown as we receive chunks
+        contentDiv.innerHTML = marked.parse(fullResponse);
+
+        // Highlight any code blocks
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    });
+
+    // Listen for stream end
+    socket.on(`stream_end_${messageId}`, (finalData) => {
+        // Finalize the message
+        if (!currentConversationId) {
+            currentConversationId = finalData.conversationId;
+            updateHistoryPanel();
+        }
+
+        // Add thought process if available
+        if (finalData.thoughtProcess) {
+            const thoughtContainer = document.createElement('div');
+            thoughtContainer.className = 'thought-container';
+            thoughtContainer.innerHTML = `
+                <small>Thought Process:</small>
+                <div class="thought-process">${marked.parse(finalData.thoughtProcess)}</div>
+            `;
+            aiMessageDiv.querySelector('.message-content').appendChild(thoughtContainer);
+        }
+
+        // Add copy functionality
+        aiMessageDiv.querySelector('.copy-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(fullResponse).then(() => {
+                const tooltip = aiMessageDiv.querySelector('.tooltiptext');
+                tooltip.textContent = 'Copied!';
+                tooltip.style.color = '#28a745';
+                setTimeout(() => {
+                    tooltip.textContent = 'Copy';
+                    tooltip.style.color = '';
+                }, 2000);
+            });
+        });
+
+        // Add regenerate functionality
+        aiMessageDiv.querySelector('.regenerate-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            regenerateLastResponse();
+        });
+
+        // Clean up event listeners
+        socket.off(`stream_chunk_${messageId}`);
+        socket.off(`stream_end_${messageId}`);
+
+        isProcessing = false;
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.focus();
+        updateTokenCounter();
+    });
+
+    // Handle stream error
+    socket.on(`stream_error_${messageId}`, (error) => {
+        console.error('Stream error:', error);
+        showErrorToast(error.message || 'Error in AI response');
+
+        // Set error message in the response div
+        const contentDiv = aiMessageDiv.querySelector('.message-content');
+        contentDiv.innerHTML = `<p class="error-message">Sorry, there was an error: ${error.message || 'Unknown error'}</p>`;
+
+        // Clean up event listeners
+        socket.off(`stream_chunk_${messageId}`);
+        socket.off(`stream_end_${messageId}`);
+        socket.off(`stream_error_${messageId}`);
+
+        isProcessing = false;
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.focus();
+    });
+}
+
+    function regenerateLastResponse() {
+        if (!currentConversationId || isProcessing) return;
 
         isProcessing = true;
         messageInput.disabled = true;
         sendBtn.disabled = true;
-
-        // Add user message to chat
-        appendMessage('user', message, new Date().toISOString(), currentDocumentId);
-        if (welcomeSection.style.display !== 'none') {
-            welcomeInput.value = '';
-        } else {
-            messageInput.value = '';
-        }
 
         // Show typing indicator
         const typingIndicator = document.createElement('div');
@@ -290,51 +445,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="dot"></div>
                 <div class="dot"></div>
             </div>
-            <span>AI is typing...</span>
+            <span>AI is regenerating response...</span>
         `;
         chatHistory.appendChild(typingIndicator);
         chatHistory.scrollTop = chatHistory.scrollHeight;
 
         // Prepare data for API
         const data = {
-            message: message,
-            model: modelSelect.value,
             conversationId: currentConversationId,
-            documentId: currentDocumentId
+            model: modelSelect.value
         };
 
-        // Send message to server
-        fetch('/api/chat', {
+        // Send request to server
+        fetch('/api/regenerate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Failed to regenerate response');
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             // Remove typing indicator
             const indicators = document.querySelectorAll('.typing-indicator');
             indicators.forEach(indicator => indicator.remove());
 
-            if (!currentConversationId) {
-                currentConversationId = data.conversationId;
-                updateHistoryPanel();
+            // Remove the last AI message if it exists
+            const lastMessage = chatHistory.lastElementChild;
+            if (lastMessage && lastMessage.classList.contains('assistant-message')) {
+                chatHistory.removeChild(lastMessage);
             }
 
-            // Add AI response to chat
+            // Add the new AI response
             appendMessage('assistant', data.response, new Date().toISOString());
         })
         .catch(error => {
             console.error('Error:', error);
-            appendMessage('assistant', 'Sorry, there was an error processing your request.', new Date().toISOString());
+            showErrorToast(error.message);
         })
         .finally(() => {
             isProcessing = false;
             messageInput.disabled = false;
             sendBtn.disabled = false;
             messageInput.focus();
-            updateTokenCounter();
         });
     }
 
@@ -374,6 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
             processedContent = content.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
         }
 
+        // Create message HTML
         messageDiv.innerHTML = `
             <div class="message-content">${processedContent}</div>
             <div class="message-time">${formattedTime}</div>
@@ -382,6 +543,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <i class="fas fa-copy"></i>
                     <span class="tooltiptext">Copy</span>
                 </button>
+                ${role === 'assistant' ? `
+                <button class="action-btn tooltip regenerate-btn" title="Regenerate response">
+                    <i class="fas fa-sync-alt"></i>
+                    <span class="tooltiptext">Regenerate</span>
+                </button>
+                ` : ''}
             </div>
         `;
 
@@ -400,16 +567,40 @@ document.addEventListener('DOMContentLoaded', function() {
             navigator.clipboard.writeText(content).then(() => {
                 const tooltip = messageDiv.querySelector('.tooltiptext');
                 tooltip.textContent = 'Copied!';
+                tooltip.style.color = '#28a745'; // Green color for success
                 setTimeout(() => {
                     tooltip.textContent = 'Copy';
+                    tooltip.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                const tooltip = messageDiv.querySelector('.tooltiptext');
+                tooltip.textContent = 'Failed!';
+                tooltip.style.color = '#dc3545'; // Red color for error
+                setTimeout(() => {
+                    tooltip.textContent = 'Copy';
+                    tooltip.style.color = '';
                 }, 2000);
             });
         });
 
+        // Add regenerate functionality for AI messages
+        if (role === 'assistant') {
+            messageDiv.querySelector('.regenerate-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                regenerateLastResponse();
+            });
+        }
+
         // Add document reference if exists
         if (documentId) {
             fetch(`/api/document/${documentId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load document');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     const docPreview = document.createElement('div');
                     docPreview.className = 'document-preview';
@@ -418,6 +609,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p>${data.content.substring(0, 200)}${data.content.length > 200 ? '...' : ''}</p>
                     `;
                     messageDiv.appendChild(docPreview);
+                })
+                .catch(error => {
+                    console.error('Error loading document:', error);
                 });
         }
 
@@ -532,7 +726,14 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Upload failed');
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             currentDocumentId = data.documentId;
 
@@ -569,6 +770,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Upload error:', error);
             fileName.textContent = 'Upload failed';
+            showErrorToast(error.message);
         });
     }
 
@@ -604,12 +806,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function exportCurrentChat() {
         if (!currentConversationId) {
-            alert('No conversation to export');
+            showErrorToast('No conversation to export');
             return;
         }
 
         fetch(`/api/conversation/${currentConversationId}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load conversation for export');
+                }
+                return response.json();
+            })
             .then(data => {
                 let exportText = `Conversation: ${data.name}\n\n`;
 
@@ -627,12 +834,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Export error:', error);
+                showErrorToast('Failed to export conversation');
             });
     }
 
     function updateHistoryPanel() {
         fetch('/chatbot')
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load conversation history');
+                }
+                return response.text();
+            })
             .then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
@@ -657,6 +873,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         deleteConversation(conversationId);
                     });
                 });
+            })
+            .catch(error => {
+                console.error('Error updating history panel:', error);
+                showErrorToast('Failed to load conversation history');
             });
     }
 
@@ -665,7 +885,12 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch(`/api/conversation/${conversationId}`, {
                 method: 'DELETE'
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete conversation');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     updateHistoryPanel();
@@ -673,6 +898,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         clearCurrentChat();
                     }
                 }
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                showErrorToast('Failed to delete conversation');
             });
         }
     }
@@ -700,6 +929,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Apply code theme setting
         if (settings.codeTheme) {
             codeThemeSelect.value = settings.codeTheme;
+            applyCodeTheme();
         }
 
         // Apply temperature setting
@@ -735,6 +965,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applyCodeTheme();
 
         toggleSettingsPanel();
+        showSuccessToast('Settings saved');
     }
 
     function applyCodeTheme() {
@@ -752,7 +983,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(link);
     }
 
-
     function setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
     }
@@ -764,6 +994,42 @@ document.addEventListener('DOMContentLoaded', function() {
         tokenCounter.textContent = `${tokenCount} tokens`;
     }
 
+    function showErrorToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast error';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+
+    function showSuccessToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast success';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+
     // Initialize range inputs
     document.getElementById('temperature').addEventListener('input', (e) => {
         document.getElementById('temperatureValue').textContent = e.target.value;
@@ -773,5 +1039,3 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('maxTokensValue').textContent = `${e.target.value} tokens`;
     });
 });
-
-
